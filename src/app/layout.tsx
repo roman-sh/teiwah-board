@@ -1,12 +1,12 @@
 import { Inter } from "next/font/google";
 import localFont from "next/font/local";
 
+import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
 
 import { Footer } from "@/components/blocks/footer";
 import { Navbar } from "@/components/blocks/navbar";
 import { StyleGlideProvider } from "@/components/styleglide-provider";
-import { ClerkProvider } from "@clerk/nextjs";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import "@/styles/globals.css";
@@ -146,7 +146,7 @@ export default function RootLayout({
           src="https://tweakcn.com/live-preview.min.js"
         />
       </head>
-      <ClerkProvider>
+      <ClerkProvider afterSignOutUrl="/">
         <body className={`${dmSans.variable} ${inter.variable} antialiased`}>
           <ThemeProvider
             attribute="class"

@@ -1,11 +1,23 @@
 import { useEffect, useState } from "react"
+
+import { useAuth } from "@clerk/nextjs"
+
 import { fetchSessions, provisionSession, type DashboardSession } from "@/services/session.service"
 
-// -----------------------------------------------------------------------------
-// HOOK: The "Brain" for managing the list of sessions
-// -----------------------------------------------------------------------------
-
+/**
+ * Session list + create for the dashboard.
+ *
+ * Create flow:
+ *   1. POST /sessions via api (Zuplo → control → k8s pod + DB row)
+ *   2. Optimistically insert card with isProvisioning: true
+ *   3. SessionCard mounts useSessionStream(id, true) → SSE retries until worker ready
+ *
+ * On page refresh, GET /sessions returns no isProvisioning flag — cards rely on SSE
+ * alone to leave "Connecting…" state.
+ */
 export function useSessions() {
+  const { isLoaded, isSignedIn } = useAuth()
+
   // --- 1. STATE DEFINITIONS ---
   
   // Holds the list of sessions fetched from the Control App
@@ -20,6 +32,16 @@ export function useSessions() {
   // --- 2. DATA FETCHING ---
 
   useEffect(() => {
+    if (!isLoaded) {
+      return
+    }
+
+    if (!isSignedIn) {
+      setSessions([])
+      setIsLoading(false)
+      return
+    }
+
     async function loadSessions() {
       setIsLoading(true)
       try {
@@ -33,7 +55,7 @@ export function useSessions() {
     }
 
     void loadSessions()
-  }, [])
+  }, [isLoaded, isSignedIn])
 
   // --- 3. ACTIONS ---
 

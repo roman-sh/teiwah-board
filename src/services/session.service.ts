@@ -1,8 +1,5 @@
-import {
-  LOCAL_TEST_USER_ID,
-  SESSIONS_CREATE_URL,
-  SESSIONS_LIST_URL
-} from "@/constants/session"
+import { SESSIONS_PATH } from "@/constants/session"
+import { api } from "@/lib/api"
 
 // -----------------------------------------------------------------------------
 // TYPES
@@ -10,6 +7,8 @@ import {
 
 export type DashboardSession = {
   sessionId: string
+  phoneNumber?: string | null
+  webhookUrl?: string | null
   createdAt?: string
   // UI-only flag to indicate this session was just created and is waiting for
   // Kubernetes to provision the worker pod.
@@ -31,18 +30,7 @@ export type CreateSessionResponse = {
  * This does NOT connect to the individual worker pods; it just gets the inventory.
  */
 export async function fetchSessions(): Promise<DashboardSession[]> {
-  const response = await fetch(SESSIONS_LIST_URL, {
-    method: "GET",
-    headers: {
-      "x-user-id": LOCAL_TEST_USER_ID
-    }
-  })
-  
-  if (!response.ok) {
-    throw new Error(`Failed to fetch sessions: ${response.statusText}`)
-  }
-
-  return response.json()
+  return api.get(SESSIONS_PATH).json<DashboardSession[]>()
 }
 
 /**
@@ -50,16 +38,5 @@ export async function fetchSessions(): Promise<DashboardSession[]> {
  * The Control App will create a DB record and tell Kubernetes to spin up a pod.
  */
 export async function provisionSession(): Promise<CreateSessionResponse> {
-  const response = await fetch(SESSIONS_CREATE_URL, {
-    method: "POST",
-    headers: {
-      "x-user-id": LOCAL_TEST_USER_ID
-    }
-  })
-
-  if (!response.ok) {
-    throw new Error(`Failed to provision session: ${response.statusText}`)
-  }
-
-  return response.json()
+  return api.post(SESSIONS_PATH).json<CreateSessionResponse>()
 }

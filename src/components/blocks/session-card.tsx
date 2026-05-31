@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react"
-import { QRCodeSVG } from "qrcode.react"
+
 import { Loader2, CheckCircle2, XCircle, Smartphone, AlertTriangle } from "lucide-react"
-import { useSessionStream } from "@/hooks/use-session-stream"
+import { QRCodeSVG } from "qrcode.react"
+
 import { WebhookConfigForm } from "@/components/blocks/webhook-config-form"
+import { useSessionStream } from "@/hooks/use-session-stream"
 import { formatPhoneNumber } from "@/lib/format-phone"
 
 type SessionCardProps = {
@@ -18,9 +20,7 @@ export function SessionCard({
   isProvisioning = false,
   webhookUrl
 }: SessionCardProps) {
-  // ---------------------------------------------------------------------------
-  // 1. THE "BRAIN" - Get data from our custom hook
-  // ---------------------------------------------------------------------------
+  // Live SSE from worker pod — one independent connection per card (see use-session-stream.ts)
   const { 
     status, 
     isLocalProvisioning, 
@@ -46,8 +46,13 @@ export function SessionCard({
   const hasWebhookConfigured = Boolean(savedWebhookUrl)
 
   // ---------------------------------------------------------------------------
-  // 3. MODAL VISIBILITY LOGIC
+  // MODAL VISIBILITY
   // ---------------------------------------------------------------------------
+  // Closing the modal (handleCloseQrModal) only sets suppressQrModal — it does NOT
+  // abort the SSE stream. The hook keeps running in the background.
+  //
+  // Card body needs BOTH isStreamConnected AND status for "Show QR Code":
+  //   stream can die briefly (isStreamConnected=false) while status stays waiting_qr.
 
   useEffect(() => {
     // Auto-open modal only while onboarding is active and user did not suppress it.

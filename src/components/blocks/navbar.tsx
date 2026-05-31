@@ -6,9 +6,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { SignInButton, UserButton , useAuth } from "@clerk/nextjs";
 import { ChevronRight, Github } from "lucide-react";
-import { SignInButton, UserButton } from "@clerk/nextjs";
-import { useAuth } from "@clerk/nextjs";
 
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
@@ -135,7 +134,7 @@ export const Navbar = () => {
                 <Link href="/dashboard" className="text-sm font-medium hover:opacity-75 transition-opacity">
                   Dashboard
                 </Link>
-                <UserButton afterSignOutUrl="/" />
+                <UserButton />
               </>
             )}
           </div>

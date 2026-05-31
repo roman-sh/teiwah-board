@@ -1,15 +1,67 @@
+/**
+ * useSessionStream — live SSE connection to a single Baileys worker pod.
+ *
+ * ONE HOOK INSTANCE PER SESSION CARD
+ * ----------------------------------
+ * Dashboard renders N SessionCards → N calls to useSessionStream(sessionId, …).
+ * All state (status, qr, refs) is scoped to that hook instance — sessions never
+ * share connection state.
+ *
+ * REQUEST PATH (production)
+ * -------------------------
+ *   Board → api.teiwah.cloud (Zuplo + Clerk JWT) → k3s.teiwah.cloud → Traefik → worker pod
+ *
+ * Local dev may point SESSION_STREAM_BASE_URL at Traefik directly (no Zuplo on SSE).
+ *
+ * PROVISIONING vs RECONNECT (the tricky part)
+ * -------------------------------------------
+ * After POST /sessions the k8s pod + ingress take time to become ready. Until then
+ * Traefik/Zuplo respond with 503 (no backend) or 502 (route not ready). That is
+ * normal — not a bug.
+ *
+ * We use hasReceivedFirstMessageRef to split two phases:
+ *
+ *   Phase A — booting (ref === false):
+ *     • 502 / 503 → retriable (keep retrying until worker sends first SSE event)
+ *     • UI shows "Provisioning…" / "Connecting…"
+ *
+ *   Phase B — worker has spoken (ref === true):
+ *     • 502 on reconnect → fatal (pod probably gone, not "still starting")
+ *     • Stream drops (Zuplo/proxy blip) → onerror reconnects with fresh JWT
+ *     • We still want reconnects here for status changes, QR rotation, disconnect events
+ *
+ * fetch-event-source RETRY MECHANICS
+ * ----------------------------------
+ * • Throw RetriableSseError in onopen → library calls onerror → schedules retry (~1s default)
+ * • Throw FatalSsePayloadError → library stops entirely
+ * • onerror must NOT throw (except re-throw Fatal) or retries stop
+ * • We do NOT return a custom interval — library default (~1000ms) is used
+ *
+ * CLERK JWT + authenticatedFetch
+ * --------------------------------
+ * Zuplo validates JWT on every /events request. Clerk session tokens live ~60 seconds.
+ * fetch-event-source reuses the same request config across retries — if Authorization
+ * were set once at connect time, long provisioning or reconnect would hit 401.
+ * See lib/api.ts authenticatedFetch (fresh getToken() per fetch).
+ *
+ * CLOSING THE QR MODAL
+ * --------------------
+ * Does NOT touch this hook. Stream stays open. Any "stream dropped, reconnecting" log
+ * around modal close is Zuplo/proxy timing — not caused by the modal.
+ */
+
 import { useEffect, useRef, useState } from "react"
+
+import { useAuth } from "@clerk/nextjs"
 import { fetchEventSource } from "@microsoft/fetch-event-source"
+
 import {
-  LOCAL_TEST_USER_ID,
-  SSE_RETRY_INTERVAL_MS,
-  SESSION_EVENTS_URL
+  SESSION_EVENTS_PATH,
+  SESSION_STREAM_BASE_URL
 } from "@/constants/session"
+import { authenticatedFetch } from "@/lib/api"
 
-// -----------------------------------------------------------------------------
-// TYPES
-// -----------------------------------------------------------------------------
-
+// Worker-reported lifecycle (mirrors nestwaileys SessionState.status)
 export type BaileysStatus =
   | "starting"
   | "waiting_qr"
@@ -17,86 +69,110 @@ export type BaileysStatus =
   | "connected"
   | "disconnected"
 
-// -----------------------------------------------------------------------------
-// HOOK: The "Brain" for a single session's SSE connection
-// -----------------------------------------------------------------------------
-
 export function useSessionStream(sessionId: string, initialProvisioning: boolean) {
-  // --- 1. STATE DEFINITIONS ---
+  const { isLoaded, isSignedIn } = useAuth()
 
-  // The actual status emitted by the Baileys worker via SSE.
+  // --- React state (per session) ---
+
+  // Latest status from worker SSE payload
   const [status, setStatus] = useState<BaileysStatus | null>(null)
 
-  // Local bridge state: true while infra is still spinning up (pod/route creation)
+  // True while waiting for k8s pod + first SSE event. Seeded from POST /sessions
+  // (isProvisioning) on create; on page refresh starts false until stream connects.
   const [isLocalProvisioning, setIsLocalProvisioning] = useState(initialProvisioning)
 
-  // Data payloads from the SSE stream
   const [qr, setQr] = useState<string | null>(null)
   const [phoneNumber, setPhoneNumber] = useState<string | null>(null)
 
-  // Connection health tracking
+  // True after HTTP 200 on the SSE connection. UI uses this with status:
+  //   isStreamConnected && status === "waiting_qr" → show "Show QR Code" button
+  //   !isStreamConnected → "Connecting…" (even if status is still waiting_qr in memory)
   const [isStreamConnected, setIsStreamConnected] = useState(false)
 
-  // Ref used to distinguish "still booting" from "stream dropped after working"
+  // --- Refs (per session, survive re-renders, reset on effect remount) ---
+
+  // Flips true on first valid onmessage — switches retry policy from Phase A to B
   const hasReceivedFirstMessageRef = useRef(false)
 
-  // --- 2. SSE CONNECTION & RETRY LOGIC ---
+  // Dedupe console status logs when worker re-emits same status on reconnect
+  const lastLoggedWorkerStatusRef = useRef<string | null>(null)
 
   useEffect(() => {
-    const streamUrl = SESSION_EVENTS_URL.replace("{SESSION_ID}", sessionId)
-    const abortController = new AbortController()
-    
-    // Reset this on mount/remount so retries work correctly
-    hasReceivedFirstMessageRef.current = false
+    if (!isLoaded || !isSignedIn) {
+      return
+    }
 
-    // Custom errors to control fetch-event-source retry behavior.
+    const streamUrl = `${SESSION_STREAM_BASE_URL}/${SESSION_EVENTS_PATH.replace("{SESSION_ID}", sessionId)}`
+    const abortController = new AbortController()
+    const tag = `[session ${sessionId}]`
+
+    if (initialProvisioning) {
+      console.info(`${tag} Provisioning started — waiting for worker pod…`)
+    }
+
+    hasReceivedFirstMessageRef.current = false
+    lastLoggedWorkerStatusRef.current = null
+
+    // Custom error classes — fetch-event-source uses throw type to decide retry vs stop
     class FatalSsePayloadError extends Error {}
     class RetriableSseError extends Error {}
 
     async function connectSSE() {
       await fetchEventSource(streamUrl, {
         method: "GET",
-        headers: {
-          "x-user-id": LOCAL_TEST_USER_ID
-        },
         signal: abortController.signal,
-        
+
+        // Must use authenticatedFetch, not static headers — see file header
+        fetch: authenticatedFetch,
+
         async onopen(response) {
           if (response.ok) {
             setIsStreamConnected(true)
+            console.info(`${tag} Event stream connected`)
             return
           }
-          
-          // CRITICAL: Traefik returns a 503 while the k3s Pod is booting up during session provisioning.
-          // DO NOT remove or break this block, as we rely on the 503 to trigger fetch-event-source's 
-          // automatic retry mechanism until the Pod passes its readiness probe.
-          if (response.status === 503) {
+
+          // Phase A only: infra still coming up after POST /sessions
+          if (
+            response.status === 503 ||
+            (response.status === 502 && !hasReceivedFirstMessageRef.current)
+          ) {
+            // Browser Network tab will still show red 502/503 rows — that's the raw
+            // fetch failing. This console.info is the human-readable counterpart.
+            console.info(
+              `${tag} Worker not ready (HTTP ${response.status}), retrying…`
+            )
             throw new RetriableSseError("Service Unavailable (Provisioning)")
           }
-          
+
+          // Phase B 502, 401, 404, etc. — stop retrying
           throw new FatalSsePayloadError(`Failed to connect, status: ${response.status}`)
         },
-        
+
         onmessage(event) {
           if (!event.data?.trim()) return
 
           const parsed = JSON.parse(event.data)
+          // Worker wraps state as { data: SessionState }; tolerate bare object too
           const payload = (parsed.data || parsed) as Record<string, unknown>
 
-          // Fail-fast on invalid payloads.
           if (!payload || typeof payload !== "object") {
             throw new FatalSsePayloadError("Invalid SSE payload shape")
           }
 
-          // The moment we get our first usable SSE event, we know the pod is up
-          // and Traefik routing is working. We end the local provisioning handoff.
           hasReceivedFirstMessageRef.current = true
           setIsLocalProvisioning(false)
 
-          // Update state based on the payload
+          const workerStatus =
+            "status" in payload && payload.status ? String(payload.status) : null
+
+          if (workerStatus && workerStatus !== lastLoggedWorkerStatusRef.current) {
+            lastLoggedWorkerStatusRef.current = workerStatus
+            console.info(`${tag} Worker status: ${workerStatus}`)
+          }
+
           if ("status" in payload && payload.status) {
-            const nextStatus = payload.status as BaileysStatus
-            setStatus(nextStatus)
+            setStatus(payload.status as BaileysStatus)
           }
           if (payload.qr) {
             setQr(payload.qr as string)
@@ -105,42 +181,39 @@ export function useSessionStream(sessionId: string, initialProvisioning: boolean
             setPhoneNumber(payload.phoneNumber as string | null)
           }
         },
-        
+
         onerror(err) {
-          // If we threw a fatal error during message parsing, stop retrying.
           if (err instanceof FatalSsePayloadError) {
             throw err
           }
 
           setIsStreamConnected(false)
 
-          // If we had already received messages, this is a real drop, not a startup retry.
+          // Phase B transient drop — fetch-event-source will retry (~1s).
+          // Worker BehaviorSubject re-emits current state on the new connection.
           if (hasReceivedFirstMessageRef.current) {
             setStatus("disconnected")
+            console.info(`${tag} Stream dropped, reconnecting…`)
           }
 
-          // Fixed retry interval while infra catches up (e.g., 503s from Traefik)
-          return SSE_RETRY_INTERVAL_MS
+          // No return value → library uses default retry interval (~1000ms)
         }
       })
     }
 
     void connectSSE().catch((err) => {
-      // Ignore aborts caused by unmounting
       if (abortController.signal.aborted) {
         return
       }
-      console.warn(`SSE connection stopped for session ${sessionId}`, err)
+      console.warn(`${tag} Event stream stopped:`, err)
       setIsStreamConnected(false)
     })
 
-    // Cleanup: close the stream when the component unmounts
     return () => {
       abortController.abort()
     }
-  }, [sessionId]) // We intentionally don't include initialProvisioning here so it doesn't reconnect
+  }, [sessionId, isLoaded, isSignedIn, initialProvisioning])
 
-  // --- 3. RETURN DATA TO THE UI ---
   return {
     status,
     isLocalProvisioning,

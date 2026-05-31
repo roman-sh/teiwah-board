@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+
 import { zodResolver } from "@hookform/resolvers/zod"
 import {
   Check,
@@ -29,10 +30,8 @@ import {
   TooltipContent,
   TooltipTrigger
 } from "@/components/ui/tooltip"
-import {
-  LOCAL_TEST_USER_ID,
-  WEBHOOK_SUBMIT_URL
-} from "@/constants/session"
+import { SESSION_WEBHOOK_PATH } from "@/constants/session"
+import { api } from "@/lib/api"
 import {
   webhookFormSchema,
   type WebhookFormValues
@@ -80,19 +79,12 @@ export function WebhookConfigForm({
   async function onSubmit(values: WebhookFormValues) {
     const url = values.webhookUrl.trim()
 
-    const response = await fetch(
-      WEBHOOK_SUBMIT_URL.replace("{SESSION_ID}", sessionId),
-      {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          "x-user-id": LOCAL_TEST_USER_ID
-        },
-        body: JSON.stringify({ webhookUrl: url })
-      }
-    )
-
-    if (!response.ok) {
+    try {
+      await api.patch(
+        SESSION_WEBHOOK_PATH.replace("{SESSION_ID}", sessionId),
+        { json: { webhookUrl: url } }
+      )
+    } catch {
       setSaveState("error")
       return
     }
