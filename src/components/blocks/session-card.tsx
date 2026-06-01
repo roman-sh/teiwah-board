@@ -121,7 +121,10 @@ function SessionOnboardingModal({
   return (
     <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4">
       <Card
-        className="max-w-md w-full relative flex flex-col items-center text-center shadow-lg p-8"
+        className={cn(
+          "max-w-md w-full relative text-center shadow-lg p-8 pt-10",
+          phase !== "scan" && "flex h-[440px] flex-col"
+        )}
         role="dialog"
         aria-labelledby={`session-onboarding-title-${sessionId}`}
       >
@@ -136,44 +139,47 @@ function SessionOnboardingModal({
           <X className="size-5" />
         </Button>
 
-        <OnboardingStepIndicator phase={phase} />
+        <div className="flex w-full shrink-0 flex-col items-center">
+          <OnboardingStepIndicator phase={phase} />
 
-        <CardTitle
-          id={`session-onboarding-title-${sessionId}`}
-          className="text-xl tracking-tight"
-        >
-          {title}
-        </CardTitle>
-        <p className="text-xs font-mono text-muted-foreground mt-2">{sessionId}</p>
-        <CardDescription className="mt-3 max-w-[300px]">{subtitle}</CardDescription>
+          <CardTitle
+            id={`session-onboarding-title-${sessionId}`}
+            className="text-xl tracking-tight"
+          >
+            {title}
+          </CardTitle>
+          <p className="text-xs font-mono text-muted-foreground mt-2">{sessionId}</p>
+          <CardDescription className="mt-3 max-w-[300px]">{subtitle}</CardDescription>
+        </div>
 
-        <div
-          className={cn(
-            "w-full flex flex-col items-center",
-            phase === "scan" ? "mt-5" : "mt-8 min-h-[220px] justify-center"
-          )}
-        >
-          {phase === "setup" && (
-            <div className="flex flex-col items-center space-y-4">
-              <Loader2 className="size-12 text-primary animate-spin" />
-              <p className="text-sm font-medium text-foreground">Preparing your session…</p>
-              <p className="text-xs text-muted-foreground">This usually takes around 30 seconds</p>
-            </div>
-          )}
-
-          {phase === "scan" && qr && (
+        {phase === "scan" && qr && (
+          <div className="mt-5 flex w-full justify-center">
             <div className="p-4 bg-white rounded-xl shadow-sm border">
               <QRCodeSVG value={qr} size={240} />
             </div>
-          )}
+          </div>
+        )}
 
-          {phase === "pairing" && (
-            <div className="flex flex-col items-center space-y-4">
+        {phase === "setup" && (
+          <>
+            <div className="flex min-h-0 flex-1 items-center justify-center">
               <Loader2 className="size-12 text-primary animate-spin" />
-              <p className="text-sm font-medium text-foreground">Linking your phone…</p>
             </div>
-          )}
-        </div>
+            <div className="shrink-0 space-y-1 pb-1">
+              <p className="text-sm font-medium text-foreground">Preparing your session…</p>
+              <p className="text-xs text-muted-foreground">This usually takes around 30 seconds</p>
+            </div>
+          </>
+        )}
+
+        {phase === "pairing" && (
+          <>
+            <div className="flex min-h-0 flex-1 items-center justify-center">
+              <Loader2 className="size-12 text-primary animate-spin" />
+            </div>
+            <p className="shrink-0 pb-1 text-sm font-medium text-foreground">Linking your phone…</p>
+          </>
+        )}
       </Card>
     </div>
   )
