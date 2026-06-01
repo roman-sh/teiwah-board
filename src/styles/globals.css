@@ -255,6 +255,55 @@
   [class*="border"] {
     @apply border-border;
   }
+
+  .skeleton-shimmer {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .skeleton-shimmer::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    animation: skeleton-shimmer-slide 1.75s ease-in-out infinite;
+    animation-delay: var(--shimmer-delay, 0ms);
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      color-mix(in oklch, var(--muted-foreground) 8%, transparent) 40%,
+      color-mix(in oklch, var(--muted-foreground) 18%, transparent) 50%,
+      color-mix(in oklch, var(--muted-foreground) 8%, transparent) 60%,
+      transparent 100%
+    );
+  }
+
+  .skeleton-shimmer-active::after {
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(96, 165, 250, 0.15) 40%,
+      rgba(147, 197, 253, 0.45) 50%,
+      rgba(96, 165, 250, 0.15) 60%,
+      transparent 100%
+    );
+    animation-duration: 1.25s;
+  }
+
+  @keyframes skeleton-shimmer-slide {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .skeleton-shimmer::after {
+      animation: none;
+    }
+  }
 }
 
 html,
