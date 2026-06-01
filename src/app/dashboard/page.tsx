@@ -4,7 +4,9 @@ import { PlusCircle } from "lucide-react"
 
 import { SessionCard } from "@/components/blocks/session-card"
 import { SessionGridGhost } from "@/components/blocks/session-grid-ghost"
+import { Card, CardContent, CardDescription, CardTitle } from "@/components/ui/card"
 import { useSessions } from "@/hooks/use-sessions"
+import { cn } from "@/lib/utils"
 
 // -----------------------------------------------------------------------------
 // COMPONENT
@@ -45,23 +47,38 @@ export default function DashboardPage() {
 
         {!isLoading && (
           <button
+            type="button"
             onClick={() => void createSession()}
             disabled={isCreatingSession}
-            className="rounded-xl border-2 border-dashed bg-muted/10 text-muted-foreground hover:bg-muted/30 hover:text-foreground hover:border-primary/50 transition-all shadow-sm h-full min-h-[380px] flex flex-col items-center justify-center space-y-4 group disabled:opacity-60 disabled:cursor-not-allowed"
+            className={cn(
+              "text-left h-full min-h-[380px] rounded-xl transition-all",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+              "disabled:cursor-not-allowed disabled:opacity-60"
+            )}
           >
-            <div className="w-16 h-16 rounded-full bg-background border shadow-sm flex items-center justify-center group-hover:scale-110 transition-transform">
-              <PlusCircle className="w-8 h-8 text-primary" />
-            </div>
-            <div className="text-center">
-              <h3 className="font-semibold text-lg text-foreground">
-                {isCreatingSession ? "Creating Session..." : "Add New Session"}
-              </h3>
-              <p className="text-sm mt-1">
-                {isCreatingSession
-                  ? "Provisioning isolated container"
-                  : "Connect another WhatsApp number"}
-              </p>
-            </div>
+            <Card
+              className={cn(
+                "h-full min-h-[380px] border-2 border-dashed shadow-sm",
+                "bg-muted/10 text-muted-foreground hover:bg-muted/30 hover:text-foreground hover:border-primary/50",
+                "flex flex-col items-center justify-center space-y-4 group"
+              )}
+            >
+              <CardContent className="flex flex-col items-center justify-center space-y-4 pt-0">
+                <div className="size-16 rounded-full bg-background border shadow-sm flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <PlusCircle className="size-8 text-primary" />
+                </div>
+                <div className="text-center">
+                  <CardTitle className="text-lg">
+                    {isCreatingSession ? "Creating Session..." : "Add New Session"}
+                  </CardTitle>
+                  <CardDescription className="mt-1">
+                    {isCreatingSession
+                      ? "Provisioning isolated container"
+                      : "Connect another WhatsApp number"}
+                  </CardDescription>
+                </div>
+              </CardContent>
+            </Card>
           </button>
         )}
       </div>
