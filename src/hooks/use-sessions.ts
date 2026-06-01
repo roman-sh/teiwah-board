@@ -9,8 +9,12 @@ import { fetchSessions, provisionSession, type DashboardSession } from "@/servic
  *
  * Create flow:
  *   1. POST /sessions via api (Zuplo → control → k8s pod + DB row)
- *   2. Optimistically insert card with isProvisioning: true
+ *   2. Append the new card to local state (no GET refetch) with isProvisioning: true
  *   3. SessionCard mounts useSessionStream(id, true) → SSE retries until worker ready
+ *
+ * Session order:
+ *   GET /sessions returns rows sorted by createdAt ascending (oldest first).
+ *   The dashboard renders in that order; new sessions are appended at the end.
  *
  * On page refresh, GET /sessions returns no isProvisioning flag — cards rely on SSE
  * alone to leave "Connecting…" state.
@@ -45,6 +49,7 @@ export function useSessions() {
     async function loadSessions() {
       setIsLoading(true)
       try {
+        // Control App returns sessions sorted by createdAt asc — use as-is.
         const data = await fetchSessions()
         setSessions(Array.isArray(data) ? data : [])
       } catch (error) {
@@ -65,16 +70,16 @@ export function useSessions() {
       const data = await provisionSession()
 
       if (data?.sessionId) {
-        // Optimistically add the new session to the top of the UI list.
-        // We set isProvisioning based on the backend response so the SessionCard
-        // knows to show a loading spinner while it waits for the SSE stream to connect.
+        // POST succeeded — append to local state instead of refetching GET /sessions.
+        // isProvisioning is UI-only (not returned by GET); it auto-opens the QR modal
+        // for sessions created this visit. Append at end to match createdAt asc order.
         setSessions((prev) => [
+          ...prev.filter((session) => session.sessionId !== data.sessionId),
           {
             sessionId: data.sessionId,
             isProvisioning: data.status === "provisioning",
             createdAt: new Date().toISOString()
-          },
-          ...prev.filter((session) => session.sessionId !== data.sessionId)
+          }
         ])
       }
     } catch (error) {
