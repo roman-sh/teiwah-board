@@ -189,8 +189,8 @@ export function WebhookConfigForm({
 
           <Button
             type="submit"
-            variant="secondary"
-            className="w-full"
+            variant="outline"
+            className="w-full bg-card hover:bg-accent/80"
             disabled={isSubmitting || !canSave}
           >
             {isSubmitting ? (

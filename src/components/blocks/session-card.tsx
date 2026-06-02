@@ -2,7 +2,16 @@
 
 import { useState, useEffect, useRef, type ReactNode } from "react"
 
-import { Loader2, CheckCircle2, XCircle, Smartphone, AlertTriangle, X } from "lucide-react"
+import {
+  Loader2,
+  CheckCircle2,
+  XCircle,
+  Smartphone,
+  AlertTriangle,
+  X,
+  Circle
+} from "lucide-react"
+import { motion, useReducedMotion } from "motion/react"
 import { QRCodeSVG } from "qrcode.react"
 
 import { ApiKeyField } from "@/components/blocks/api-key-field"
@@ -70,29 +79,55 @@ const ONBOARDING_STEPS = [
   { key: "done", label: "Done" }
 ] as const
 
+const SETUP_TASKS = [
+  "Starting worker",
+  "Creating API key",
+  "Almost ready"
+] as const
+
 function OnboardingStepIndicator({ phase }: { phase: OnboardingPhase }) {
+  const prefersReducedMotion = useReducedMotion()
   const activeIndex = phase === "setup" ? 0 : phase === "scan" ? 1 : 2
+  const pulseActive = phase === "setup" && !prefersReducedMotion
 
   return (
     <div className="flex items-center justify-center gap-2 w-full max-w-[280px] mb-8">
       {ONBOARDING_STEPS.map((step, index) => (
         <div key={step.key} className="flex items-center gap-2">
           <div className="flex flex-col items-center gap-1">
-            <div
-              className={cn(
-                "flex h-7 w-7 items-center justify-center rounded-full text-xs font-medium border transition-colors",
-                index < activeIndex &&
-                  "border-primary/40 bg-primary/10 text-primary",
-                index === activeIndex &&
-                  "border-primary bg-primary text-primary-foreground",
-                index > activeIndex && "border-muted-foreground/25 text-muted-foreground"
+            <div className="relative flex size-7 items-center justify-center">
+              {pulseActive && index === activeIndex && (
+                <>
+                  <motion.span
+                    aria-hidden
+                    className="absolute inset-0 rounded-full border-2 border-primary/70"
+                    animate={{ scale: [1, 1.85], opacity: [0.75, 0] }}
+                    transition={{ duration: 1.5, repeat: Infinity, ease: "easeOut" }}
+                  />
+                  <motion.span
+                    aria-hidden
+                    className="absolute inset-0 rounded-full bg-primary/25"
+                    animate={{ scale: [1, 1.35, 1], opacity: [0.5, 0.2, 0.5] }}
+                    transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                  />
+                </>
               )}
-            >
-              {index < activeIndex ? (
-                <CheckCircle2 className="h-3.5 w-3.5" />
-              ) : (
-                index + 1
-              )}
+              <div
+                className={cn(
+                  "relative z-10 flex h-7 w-7 items-center justify-center rounded-full text-xs font-medium border transition-colors",
+                  index < activeIndex &&
+                    "border-primary/40 bg-primary/10 text-primary",
+                  index === activeIndex &&
+                    "border-primary bg-primary text-primary-foreground",
+                  index > activeIndex && "border-muted-foreground/25 text-muted-foreground"
+                )}
+              >
+                {index < activeIndex ? (
+                  <CheckCircle2 className="h-3.5 w-3.5" />
+                ) : (
+                  index + 1
+                )}
+              </div>
             </div>
             <span
               className={cn(
@@ -104,15 +139,125 @@ function OnboardingStepIndicator({ phase }: { phase: OnboardingPhase }) {
             </span>
           </div>
           {index < ONBOARDING_STEPS.length - 1 && (
-            <div
-              className={cn(
-                "h-px w-8 mb-4",
-                index < activeIndex ? "bg-primary/40" : "bg-muted-foreground/20"
-              )}
-            />
+            <div className="relative h-px w-8 mb-4 overflow-hidden bg-muted-foreground/20">
+              <motion.div
+                className="absolute inset-y-0 left-0 bg-primary/50"
+                initial={false}
+                animate={{ width: index < activeIndex ? "100%" : "0%" }}
+                transition={{ duration: 0.45, ease: "easeOut" }}
+              />
+            </div>
           )}
         </div>
       ))}
+    </div>
+  )
+}
+
+function getSseSetupSteps(
+  status: BaileysStatus | null,
+  isStreamConnected: boolean
+): number {
+  if (status === "starting" || status === "waiting_qr" || status === "authenticating") {
+    return 2
+  }
+  if (isStreamConnected) {
+    return 1
+  }
+  return 0
+}
+
+function ProvisioningChecklist({
+  sessionId,
+  status,
+  isStreamConnected
+}: {
+  sessionId: string
+  status: BaileysStatus | null
+  isStreamConnected: boolean
+}) {
+  const prefersReducedMotion = useReducedMotion()
+  const [timerSteps, setTimerSteps] = useState(0)
+
+  useEffect(() => {
+    setTimerSteps(0)
+    const first = window.setTimeout(() => setTimerSteps(1), 25000)
+    const second = window.setTimeout(() => setTimerSteps(2), 35000)
+    return () => {
+      window.clearTimeout(first)
+      window.clearTimeout(second)
+    }
+  }, [sessionId])
+
+  const completedSteps = Math.min(
+    SETUP_TASKS.length,
+    Math.max(timerSteps, getSseSetupSteps(status, isStreamConnected))
+  )
+
+  return (
+    <div className="relative w-full max-w-[260px]">
+      {!prefersReducedMotion && (
+        <motion.div
+          aria-hidden
+          className="pointer-events-none absolute left-1/2 top-1/2 size-36 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/15 blur-2xl"
+          animate={{ scale: [0.85, 1.15, 0.85], opacity: [0.25, 0.55, 0.25] }}
+          transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
+        />
+      )}
+      <ul className="relative space-y-2 text-left">
+        {SETUP_TASKS.map((label, index) => {
+          const isDone = index < completedSteps
+          const isActive = index === completedSteps
+
+          return (
+            <motion.li
+              key={label}
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: index * 0.08, duration: 0.25 }}
+              className={cn(
+                "relative flex items-center gap-3 rounded-lg px-2 py-2",
+                isActive && "bg-primary/5"
+              )}
+            >
+              {isActive && !prefersReducedMotion && (
+                <motion.span
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0 rounded-lg border border-primary/40"
+                  animate={{ opacity: [0.35, 0.85, 0.35] }}
+                  transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
+                />
+              )}
+              <div className="relative z-10 flex items-center gap-3">
+                {isDone ? (
+                  <motion.div
+                    initial={{ scale: 0.6, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ type: "spring", stiffness: 420, damping: 22 }}
+                  >
+                    <CheckCircle2 className="size-4 shrink-0 text-primary" />
+                  </motion.div>
+                ) : isActive ? (
+                  <Loader2 className="size-4 shrink-0 animate-spin text-primary" />
+                ) : (
+                  <Circle className="size-4 shrink-0 text-muted-foreground/35" />
+                )}
+                <span
+                  className={cn(
+                    "text-sm transition-colors",
+                    isDone && "text-foreground",
+                    isActive && "font-medium text-foreground",
+                    !isDone && !isActive && "text-muted-foreground"
+                  )}
+                >
+                  {label}
+                  {isActive && "…"}
+                </span>
+              </div>
+            </motion.li>
+          )
+        })}
+      </ul>
     </div>
   )
 }
@@ -121,11 +266,15 @@ function SessionOnboardingModal({
   sessionId,
   phase,
   qr,
+  status,
+  isStreamConnected,
   onClose
 }: {
   sessionId: string
   phase: OnboardingPhase
   qr: string | null
+  status: BaileysStatus | null
+  isStreamConnected: boolean
   onClose: () => void
 }) {
   const title =
@@ -187,22 +336,30 @@ function SessionOnboardingModal({
           </div>
 
           {phase === "scan" && qr && (
-            <div className="mt-5 flex w-full justify-center">
+            <motion.div
+              className="mt-5 flex w-full justify-center"
+              initial={{ opacity: 0, scale: 0.96 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.35, ease: "easeOut" }}
+            >
               <div className="p-4 bg-white rounded-xl shadow-sm border">
                 <QRCodeSVG value={qr} size={240} />
               </div>
-            </div>
+            </motion.div>
           )}
 
           {phase === "setup" && (
             <>
-              <div className="flex min-h-0 flex-1 items-center justify-center">
-                <Loader2 className="size-12 text-primary animate-spin" />
+              <div className="flex min-h-0 flex-1 items-center justify-center px-2">
+                <ProvisioningChecklist
+                  sessionId={sessionId}
+                  status={status}
+                  isStreamConnected={isStreamConnected}
+                />
               </div>
-              <div className="shrink-0 space-y-1 pb-1">
-                <p className="text-sm font-medium text-foreground">Preparing your session…</p>
-                <p className="text-xs text-muted-foreground">This usually takes about 30 seconds</p>
-              </div>
+              <p className="shrink-0 pb-1 text-xs text-muted-foreground">
+                This usually takes about 30 seconds
+              </p>
             </>
           )}
 
@@ -414,6 +571,8 @@ export function SessionCard({
           sessionId={sessionId}
           phase={onboardingPhase}
           qr={qr}
+          status={status}
+          isStreamConnected={isStreamConnected}
           onClose={handleCloseQrModal}
         />
       )}
