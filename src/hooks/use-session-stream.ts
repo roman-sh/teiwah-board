@@ -190,9 +190,10 @@ export function useSessionStream(sessionId: string, initialProvisioning: boolean
           setIsStreamConnected(false)
 
           // Phase B transient drop — fetch-event-source will retry (~1s).
-          // Worker BehaviorSubject re-emits current state on the new connection.
+          // Do not set status to disconnected here: worker may still be waiting_qr;
+          // reconnect replays the real state. Forcing disconnected flashed pairing UI
+          // and could close the onboarding modal.
           if (hasReceivedFirstMessageRef.current) {
-            setStatus("disconnected")
             console.info(`${tag} Stream dropped, reconnecting…`)
           }
 

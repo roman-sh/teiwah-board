@@ -41,6 +41,8 @@ export default function DashboardPage() {
               sessionId={session.sessionId}
               isProvisioning={session.isProvisioning ?? false}
               webhookUrl={session.webhookUrl}
+              apiKey={session.apiKey}
+              apiKeyMasked={session.apiKeyMasked}
             />
           ))
         )}

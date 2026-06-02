@@ -77,6 +77,8 @@ export function useSessions() {
           ...prev.filter((session) => session.sessionId !== data.sessionId),
           {
             sessionId: data.sessionId,
+            apiKey: data.apiKey,
+            apiKeyMasked: data.apiKeyMasked,
             isProvisioning: data.status === "provisioning",
             createdAt: new Date().toISOString()
           }

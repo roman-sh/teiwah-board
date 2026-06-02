@@ -15,6 +15,7 @@ import {
 } from "lucide-react"
 import { useForm, useFormState, useWatch } from "react-hook-form"
 
+import { INSET_WELL_CLASS } from "@/components/blocks/inset-well"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import {
@@ -96,21 +97,17 @@ export function WebhookConfigForm({
   }
 
   return (
-    <div className="space-y-4 pt-4 border-t">
-      <div className="flex items-center gap-2 mb-2">
-        <Settings2 className="w-4 h-4 text-muted-foreground" />
-        <h4 className="text-sm font-medium">Webhook Configuration</h4>
-      </div>
-
+    <section className={INSET_WELL_CLASS}>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
           <FormField
             control={form.control}
             name="webhookUrl"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="gap-1.5">
                 <div className="flex items-center gap-1.5">
-                  <FormLabel>Webhook URL</FormLabel>
+                  <Settings2 className="w-4 h-4 text-muted-foreground shrink-0" />
+                  <FormLabel className="mb-0">Webhook URL</FormLabel>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <button
@@ -212,6 +209,6 @@ export function WebhookConfigForm({
           </Button>
         </form>
       </Form>
-    </div>
+    </section>
   )
 }

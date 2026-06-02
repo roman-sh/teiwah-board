@@ -86,6 +86,13 @@ export const SESSIONS_PATH = "sessions"
 export const SESSION_WEBHOOK_PATH = "sessions/{SESSION_ID}/webhook"
 
 /**
+ * Reveal the full session API key (fetched from Zuplo via control).
+ *
+ * Used for GET /sessions/:id/api-key.
+ */
+export const SESSION_API_KEY_PATH = "sessions/{SESSION_ID}/api-key"
+
+/**
  * SSE stream for session status and QR code from the Baileys worker.
  *
  * GET /sessions/:id/events — long-lived text/event-stream.

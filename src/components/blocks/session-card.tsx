@@ -5,6 +5,7 @@ import { useState, useEffect, useRef, type ReactNode } from "react"
 import { Loader2, CheckCircle2, XCircle, Smartphone, AlertTriangle, X } from "lucide-react"
 import { QRCodeSVG } from "qrcode.react"
 
+import { ApiKeyField } from "@/components/blocks/api-key-field"
 import { WebhookConfigForm } from "@/components/blocks/webhook-config-form"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -23,6 +24,8 @@ type SessionCardProps = {
   sessionId: string
   isProvisioning?: boolean
   webhookUrl?: string | null
+  apiKey?: string | null
+  apiKeyMasked?: string | null
 }
 
 type OnboardingPhase = "setup" | "scan" | "pairing"
@@ -38,6 +41,27 @@ function getOnboardingPhase(
     return "scan"
   }
   return "setup"
+}
+
+/** Ignore brief authenticating blips (SSE reconnect, Baileys noise) before showing pairing UI. */
+function useOnboardingPhase(
+  status: BaileysStatus | null,
+  qr: string | null
+): OnboardingPhase {
+  const rawPhase = getOnboardingPhase(status, qr)
+  const [displayPhase, setDisplayPhase] = useState<OnboardingPhase>(rawPhase)
+
+  useEffect(() => {
+    if (rawPhase !== "pairing") {
+      setDisplayPhase(rawPhase)
+      return
+    }
+
+    const timer = window.setTimeout(() => setDisplayPhase("pairing"), 600)
+    return () => window.clearTimeout(timer)
+  }, [rawPhase, status, qr])
+
+  return displayPhase
 }
 
 const ONBOARDING_STEPS = [
@@ -93,6 +117,19 @@ function OnboardingStepIndicator({ phase }: { phase: OnboardingPhase }) {
   )
 }
 
+function getSseSetupSteps(
+  status: BaileysStatus | null,
+  isStreamConnected: boolean
+): number {
+  if (status === "starting" || status === "waiting_qr" || status === "authenticating") {
+    return 2
+  }
+  if (isStreamConnected) {
+    return 1
+  }
+  return 0
+}
+
 function SessionOnboardingModal({
   sessionId,
   phase,
@@ -113,74 +150,85 @@ function SessionOnboardingModal({
 
   const subtitle =
     phase === "setup"
-      ? "Hang tight — preparing your dedicated session."
+      ? "Hang tight — preparing your session."
       : phase === "scan"
         ? "Settings → Linked devices → Link a device"
         : "Almost done."
 
   return (
-    <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <Card
-        className={cn(
-          "max-w-md w-full relative text-center shadow-lg p-8 pt-10",
-          phase !== "scan" && "flex h-[440px] flex-col"
-        )}
-        role="dialog"
-        aria-labelledby={`session-onboarding-title-${sessionId}`}
-      >
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon-sm"
-          onClick={onClose}
-          className="absolute top-4 right-4"
-          aria-label="Close"
-        >
-          <X className="size-5" />
-        </Button>
-
-        <div className="flex w-full shrink-0 flex-col items-center">
-          <OnboardingStepIndicator phase={phase} />
-
-          <CardTitle
-            id={`session-onboarding-title-${sessionId}`}
-            className="text-xl tracking-tight"
-          >
-            {title}
-          </CardTitle>
-          <p className="text-xs font-mono text-muted-foreground mt-2">{sessionId}</p>
-          <CardDescription className="mt-3 max-w-[300px]">{subtitle}</CardDescription>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 p-4 backdrop-blur-sm">
+      <div className="flex w-full max-w-md flex-col items-stretch gap-2">
+        <div className="flex justify-start px-1">
+          <span className="inline-flex max-w-full truncate rounded-md border border-border/70 bg-muted/50 px-2.5 py-1 font-mono text-[11px] text-muted-foreground shadow-sm">
+            {sessionId}
+          </span>
         </div>
 
-        {phase === "scan" && qr && (
-          <div className="mt-5 flex w-full justify-center">
-            <div className="p-4 bg-white rounded-xl shadow-sm border">
-              <QRCodeSVG value={qr} size={240} />
-            </div>
+        <Card
+          className={cn(
+            "relative w-full text-center shadow-lg p-8 pt-10",
+            phase !== "scan" && "flex h-[440px] flex-col"
+          )}
+          role="dialog"
+          aria-labelledby={`session-onboarding-title-${sessionId}`}
+        >
+          <span className="sr-only">Session {sessionId}</span>
+
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            onClick={onClose}
+            className="absolute top-4 right-4"
+            aria-label="Close"
+          >
+            <X className="size-5" />
+          </Button>
+
+          <div className="flex w-full shrink-0 flex-col items-center">
+            <OnboardingStepIndicator phase={phase} />
+
+            <CardTitle
+              id={`session-onboarding-title-${sessionId}`}
+              className="font-display text-2xl font-medium tracking-tight"
+            >
+              {title}
+            </CardTitle>
+            <CardDescription className="mt-3 max-w-[300px]">
+              {subtitle}
+            </CardDescription>
           </div>
-        )}
 
-        {phase === "setup" && (
-          <>
-            <div className="flex min-h-0 flex-1 items-center justify-center">
-              <Loader2 className="size-12 text-primary animate-spin" />
+          {phase === "scan" && qr && (
+            <div className="mt-5 flex w-full justify-center">
+              <div className="p-4 bg-white rounded-xl shadow-sm border">
+                <QRCodeSVG value={qr} size={240} />
+              </div>
             </div>
-            <div className="shrink-0 space-y-1 pb-1">
-              <p className="text-sm font-medium text-foreground">Preparing your session…</p>
-              <p className="text-xs text-muted-foreground">This usually takes around 30 seconds</p>
-            </div>
-          </>
-        )}
+          )}
 
-        {phase === "pairing" && (
-          <>
-            <div className="flex min-h-0 flex-1 items-center justify-center">
-              <Loader2 className="size-12 text-primary animate-spin" />
-            </div>
-            <p className="shrink-0 pb-1 text-sm font-medium text-foreground">Linking your phone…</p>
-          </>
-        )}
-      </Card>
+          {phase === "setup" && (
+            <>
+              <div className="flex min-h-0 flex-1 items-center justify-center">
+                <Loader2 className="size-12 text-primary animate-spin" />
+              </div>
+              <div className="shrink-0 space-y-1 pb-1">
+                <p className="text-sm font-medium text-foreground">Preparing your session…</p>
+                <p className="text-xs text-muted-foreground">This usually takes about 30 seconds</p>
+              </div>
+            </>
+          )}
+
+          {phase === "pairing" && (
+            <>
+              <div className="flex min-h-0 flex-1 items-center justify-center">
+                <Loader2 className="size-12 text-primary animate-spin" />
+              </div>
+              <p className="shrink-0 pb-1 text-sm font-medium text-foreground">Linking your phone…</p>
+            </>
+          )}
+        </Card>
+      </div>
     </div>
   )
 }
@@ -196,7 +244,9 @@ function SessionStatusBadge({ children }: { children: ReactNode }) {
 export function SessionCard({
   sessionId,
   isProvisioning = false,
-  webhookUrl
+  webhookUrl,
+  apiKey,
+  apiKeyMasked
 }: SessionCardProps) {
   const {
     status,
@@ -243,7 +293,7 @@ export function SessionCard({
     setIsModalOpen(true)
   }
 
-  const onboardingPhase = getOnboardingPhase(status, qr)
+  const onboardingPhase = useOnboardingPhase(status, qr)
 
   return (
     <Card className="h-fit shadow">
@@ -357,11 +407,19 @@ export function SessionCard({
           )}
         </div>
 
-        <WebhookConfigForm
-          sessionId={sessionId}
-          initialWebhookUrl={webhookUrl}
-          onSaved={(url) => setSavedWebhookUrl(url)}
-        />
+        <div className="space-y-5">
+          <ApiKeyField
+            sessionId={sessionId}
+            apiKey={apiKey}
+            apiKeyMasked={apiKeyMasked}
+          />
+
+          <WebhookConfigForm
+            sessionId={sessionId}
+            initialWebhookUrl={webhookUrl}
+            onSaved={(url) => setSavedWebhookUrl(url)}
+          />
+        </div>
       </CardContent>
 
       {isModalOpen && (
