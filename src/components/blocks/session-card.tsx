@@ -117,19 +117,6 @@ function OnboardingStepIndicator({ phase }: { phase: OnboardingPhase }) {
   )
 }
 
-function getSseSetupSteps(
-  status: BaileysStatus | null,
-  isStreamConnected: boolean
-): number {
-  if (status === "starting" || status === "waiting_qr" || status === "authenticating") {
-    return 2
-  }
-  if (isStreamConnected) {
-    return 1
-  }
-  return 0
-}
-
 function SessionOnboardingModal({
   sessionId,
   phase,
