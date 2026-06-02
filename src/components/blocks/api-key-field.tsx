@@ -110,7 +110,11 @@ export function ApiKeyField({ sessionId, apiKey, apiKeyMasked }: ApiKeyFieldProp
     }
 
     function updateMask() {
-      const input = container.querySelector("input")
+      const el = containerRef.current
+      if (!el) {
+        return
+      }
+      const input = el.querySelector("input")
       if (!input) {
         return
       }
