@@ -1,256 +1,95 @@
-import Image from "next/image";
+import {
+  Code2,
+  Gauge,
+  KeySquare,
+  MessageSquareText,
+  PlugZap,
+  ShieldCheck,
+} from "lucide-react";
 
 import { DashedLine } from "../dashed-line";
 
-import { cn } from "@/lib/utils";
+import { Card, CardContent } from "@/components/ui/card";
 
-const topItems = [
+const capabilities = [
   {
-    title: "Reusable issue templates.",
+    title: "Send & receive text",
     description:
-      "Draft lightning-fast documents with our Smart Instructions and Templates.",
-    images: [
-      {
-        src: "/resource-allocation/templates.webp",
-        alt: "Issue template interface",
-        width: 495,
-        height: 186,
-      },
-    ],
-    className:
-      "flex-1 [&>.title-container]:mb-5 md:[&>.title-container]:mb-8 xl:[&>.image-container]:translate-x-6 [&>.image-container]:translate-x-2",
-    fade: [""],
+      "Deliver outbound messages with a single POST, and receive inbound replies straight to your webhook.",
+    icon: MessageSquareText,
   },
   {
-    title: "Simplify your stack.",
-    description: "No more Confluence, SharePoint, or Microsoft Word.",
-    images: [
-      { src: "/logos/jira.svg", alt: "Jira logo", width: 48, height: 48 },
-      { src: "/logos/excel.svg", alt: "Excel logo", width: 48, height: 48 },
-      {
-        src: "/logos/notion.svg",
-        alt: "Notion logo",
-        width: 48,
-        height: 48,
-      },
-      { src: "/logos/word.svg", alt: "Word logo", width: 48, height: 48 },
-      {
-        src: "/logos/monday.svg",
-        alt: "Monday logo",
-        width: 48,
-        height: 48,
-      },
-      {
-        src: "/logos/drive.svg",
-        alt: "Google Drive logo",
-        width: 48,
-        height: 48,
-      },
-      {
-        src: "/logos/jira.svg",
-        alt: "Jira logo",
-        width: 48,
-        height: 48,
-      },
-      { src: "/logos/asana.svg", alt: "Asana logo", width: 48, height: 48 },
-    ],
-    className:
-      "flex-1 [&>.title-container]:mb-5 md:[&>.title-container]:mb-8 md:[&>.title-container]:translate-x-2 xl:[&>.title-container]:translate-x-4 [&>.title-container]:translate-x-0",
-    fade: [],
-  },
-];
-
-const bottomItems = [
-  {
-    title: "Graveyard it.",
+    title: "Works with your stack",
     description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit sed do.",
-    images: [
-      {
-        src: "/resource-allocation/graveyard.webp",
-        alt: "Graveyard interface",
-        width: 305,
-        height: 280,
-      },
-    ],
-    className:
-      "[&>.title-container]:mb-5 md:[&>.title-container]:mb-8 xl:[&>.image-container]:translate-x-6 [&>.image-container]:translate-x-2",
-    fade: ["bottom"],
+      "Anything that can call an HTTP endpoint works — Node, Python, n8n, Make, Zapier or a cron job.",
+    icon: PlugZap,
   },
   {
-    title: "Task discussions.",
+    title: "Per-session API keys",
     description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit sed do eiusmod.",
-    images: [
-      {
-        src: "/resource-allocation/discussions.webp",
-        alt: "Task discussions interface",
-        width: 320,
-        height: 103,
-      },
-    ],
-    className:
-      "justify-normal [&>.title-container]:mb-5 md:[&>.title-container]:mb-0 [&>.image-container]:flex-1 md:[&>.image-container]:place-items-center md:[&>.image-container]:-translate-y-3",
-    fade: [""],
+      "Each connected number has its own key, so you can scope and rotate access per number.",
+    icon: KeySquare,
   },
   {
-    title: "Notifications.",
+    title: "Simple JSON payloads",
     description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit sed do eiusmod.",
-    images: [
-      {
-        src: "/resource-allocation/notifications.webp",
-        alt: "Notifications interface",
-        width: 305,
-        height: 280,
-      },
-    ],
-    className:
-      "[&>.title-container]:mb-5 md:[&>.title-container]:mb-8 xl:[&>.image-container]:translate-x-6 [&>.image-container]:translate-x-2",
-    fade: ["bottom"],
+      "No proprietary SDK. Clear request and response shapes you can read and test in minutes.",
+    icon: Code2,
+  },
+  {
+    title: "Live status dashboard",
+    description:
+      "Watch connection status and the QR pairing flow in real time from your dashboard.",
+    icon: Gauge,
+  },
+  {
+    title: "Keys stay yours",
+    description:
+      "We store only the last characters of each key for recognition — never the full secret in plain text.",
+    icon: ShieldCheck,
   },
 ];
 
 export const ResourceAllocation = () => {
   return (
-    <section
-      id="resource-allocation"
-      className="overflow-hidden pb-28 lg:pb-32"
-    >
-      <div className="">
-        <h2 className="container text-center text-3xl tracking-tight text-balance sm:text-4xl md:text-5xl lg:text-6xl">
-          Mainline your resource allocation and execution
+    <section id="features" className="overflow-hidden pb-28 lg:pb-32">
+      <div className="container">
+        <h2 className="text-center text-3xl tracking-tight text-balance sm:text-4xl md:text-5xl lg:text-6xl">
+          Everything you need to talk to WhatsApp
         </h2>
+        <p className="text-muted-foreground mx-auto mt-5 max-w-2xl text-center leading-snug text-balance">
+          Teiwah handles the connection, status and message plumbing so you can
+          focus on what your app or bot actually does.
+        </p>
 
         <div className="mt-8 md:mt-12 lg:mt-20">
-          <DashedLine
-            orientation="horizontal"
-            className="container scale-x-105"
-          />
+          <DashedLine orientation="horizontal" className="scale-x-105" />
 
-          {/* Top Features Grid - 2 items */}
-          <div className="relative container flex max-md:flex-col">
-            {topItems.map((item, i) => (
-              <Item key={i} item={item} isLast={i === topItems.length - 1} />
-            ))}
+          <div className="grid gap-0 md:grid-cols-2 lg:grid-cols-3">
+            {capabilities.map((item) => {
+              const Icon = item.icon;
+              return (
+                <Card
+                  key={item.title}
+                  className="rounded-none border-0 shadow-none"
+                >
+                  <CardContent className="flex flex-col gap-4 p-6 md:p-8">
+                    <div className="bg-muted flex size-11 items-center justify-center rounded-xl">
+                      <Icon className="size-5" />
+                    </div>
+                    <h3 className="font-semibold">{item.title}</h3>
+                    <p className="text-muted-foreground text-sm leading-snug">
+                      {item.description}
+                    </p>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
-          <DashedLine
-            orientation="horizontal"
-            className="container max-w-7xl scale-x-110"
-          />
 
-          {/* Bottom Features Grid - 3 items */}
-          <div className="relative container grid max-w-7xl md:grid-cols-3">
-            {bottomItems.map((item, i) => (
-              <Item
-                key={i}
-                item={item}
-                isLast={i === bottomItems.length - 1}
-                className="md:pb-0"
-              />
-            ))}
-          </div>
+          <DashedLine orientation="horizontal" className="scale-x-105" />
         </div>
-        <DashedLine
-          orientation="horizontal"
-          className="container max-w-7xl scale-x-110"
-        />
       </div>
     </section>
-  );
-};
-
-interface ItemProps {
-  item: (typeof topItems)[number] | (typeof bottomItems)[number];
-  isLast?: boolean;
-  className?: string;
-}
-
-const Item = ({ item, isLast, className }: ItemProps) => {
-  return (
-    <div
-      className={cn(
-        "relative flex flex-col justify-between px-0 py-6 md:px-6 md:py-8",
-        className,
-        item.className,
-      )}
-    >
-      <div className="title-container text-balance">
-        <h3 className="inline font-semibold">{item.title} </h3>
-        <span className="text-muted-foreground"> {item.description}</span>
-      </div>
-
-      {item.fade.includes("bottom") && (
-        <div className="from-muted/80 absolute inset-0 z-10 bg-linear-to-t via-transparent to-transparent md:hidden" />
-      )}
-      {item.images.length > 4 ? (
-        <div className="relative overflow-hidden">
-          <div className="flex flex-col gap-5">
-            {/* First row - right aligned */}
-            <div className="flex translate-x-4 justify-end gap-5">
-              {item.images.slice(0, 4).map((image, j) => (
-                <div
-                  key={j}
-                  className="bg-background grid aspect-square size-16 place-items-center rounded-2xl p-2 lg:size-20"
-                >
-                  <Image
-                    src={image.src}
-                    alt={image.alt}
-                    width={image.width}
-                    height={image.height}
-                    className="object-contain object-left-top"
-                  />
-                  <div className="from-muted/80 absolute inset-y-0 right-0 z-10 w-16 bg-linear-to-l to-transparent" />
-                </div>
-              ))}
-            </div>
-            {/* Second row - left aligned */}
-            <div className="flex -translate-x-4 gap-5">
-              {item.images.slice(4).map((image, j) => (
-                <div
-                  key={j}
-                  className="bg-background grid aspect-square size-16 place-items-center rounded-2xl lg:size-20"
-                >
-                  <Image
-                    src={image.src}
-                    alt={image.alt}
-                    width={image.width}
-                    height={image.height}
-                    className="object-contain object-left-top"
-                  />
-                  <div className="from-muted absolute inset-y-0 bottom-0 left-0 z-10 w-14 bg-linear-to-r to-transparent" />
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      ) : (
-        <div className="image-container grid grid-cols-1 gap-4">
-          {item.images.map((image, j) => (
-            <Image
-              key={j}
-              src={image.src}
-              alt={image.alt}
-              width={image.width}
-              height={image.height}
-              className="object-contain object-left-top"
-            />
-          ))}
-        </div>
-      )}
-
-      {!isLast && (
-        <>
-          <DashedLine
-            orientation="vertical"
-            className="absolute top-0 right-0 max-md:hidden"
-          />
-          <DashedLine
-            orientation="horizontal"
-            className="absolute inset-x-0 bottom-0 md:hidden"
-          />
-        </>
-      )}
-    </div>
   );
 };

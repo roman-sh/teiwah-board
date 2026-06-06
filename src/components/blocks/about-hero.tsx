@@ -1,21 +1,21 @@
 import { DashedLine } from "@/components/dashed-line";
 
-const stats = [
+const facts = [
   {
-    value: "$150M",
-    label: "Raised",
+    value: "$2.95",
+    label: "Per session, per month",
   },
   {
-    value: "20K",
-    label: "Companies",
+    value: "QR",
+    label: "Connect a number in seconds",
   },
   {
-    value: "1.3B",
-    label: "Monthly transactions",
+    value: "HTTP",
+    label: "Send & receive with one API",
   },
   {
-    value: "1.5K",
-    label: "Connections per minute",
+    value: "n8n & Make",
+    label: "Drops into your automations",
   },
 ];
 
@@ -25,27 +25,23 @@ export function AboutHero() {
       <div className="container flex max-w-5xl flex-col justify-between gap-8 md:gap-20 lg:flex-row lg:items-center lg:gap-24 xl:gap-24">
         <div className="flex-[1.5]">
           <h1 className="text-3xl tracking-tight sm:text-4xl md:text-5xl lg:text-6xl">
-            Democratising quality software
+            WhatsApp messaging without the boilerplate
           </h1>
 
           <p className="text-muted-foreground mt-5 text-2xl md:text-3xl lg:text-4xl">
-            Mainline is bringing modern software to life with AI magic.
+            Teiwah turns a WhatsApp number into a clean HTTP API.
           </p>
 
           <p className="text-muted-foreground mt-8 hidden max-w-lg space-y-6 text-lg text-balance md:block lg:mt-12">
-            At Mainline, we are dedicated to transforming the way teams plan,
-            execute, and deliver projects. Our mission is to provide our
-            customers with an unbeatable edge over delays, inefficiencies, and
-            disorganisation through actionable insights and seamless
-            collaboration. We’ll stop at nothing to give you the tools you need
-            to get every project across the finish line.
+            Wiring WhatsApp into an app or automation usually means business
+            verification, app reviews and heavy SDKs. Teiwah takes a different
+            path: connect a number you already own by scanning a QR code, then
+            send and receive messages with a single endpoint and a webhook.
             <br />
             <br />
-            We’re customer-obsessed — investing the time to understand every
-            aspect of your workflow so that we can help you operate better than
-            ever before. We’re all in this together because your success is our
-            success. In our history as a company, we’ve never lost a customer,
-            because when your projects succeed, so do we.
+            It is built for developers and automation builders who just want a
+            number that talks to their code. We keep the surface area small, the
+            pricing simple, and your keys yours.
           </p>
         </div>
 
@@ -60,12 +56,12 @@ export function AboutHero() {
             orientation="horizontal"
             className="absolute top-0 lg:hidden"
           />
-          {stats.map((stat) => (
-            <div key={stat.label} className="flex flex-col gap-1">
-              <div className="font-display text-4xl tracking-wide md:text-5xl">
-                {stat.value}
+          {facts.map((fact) => (
+            <div key={fact.label} className="flex flex-col gap-1">
+              <div className="font-display text-3xl tracking-wide md:text-4xl">
+                {fact.value}
               </div>
-              <div className="text-muted-foreground">{stat.label}</div>
+              <div className="text-muted-foreground">{fact.label}</div>
             </div>
           ))}
         </div>

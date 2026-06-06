@@ -11,23 +11,18 @@ const About = () => {
       <div className="flex flex-col gap-8 lg:gap-16 xl:gap-20">
         <ImageSection
           images={[
-            { src: "/about/1.webp", alt: "Team collaboration" },
-            { src: "/about/2.webp", alt: "Team workspace" },
+            { src: "/about/1.webp", alt: "Working on Teiwah" },
+            { src: "/about/2.webp", alt: "Developer workspace" },
           ]}
           className="xl:-translate-x-10"
         />
 
         <TextSection
-          title="The team"
+          title="Who we are"
           paragraphs={[
-            "We started building Mainline in 2019 and launched in 2022. Every endpoint has been designed from the ground up — with no technical debt or legacy systems. We are purpose-built to power project management innovation for the next hundred years.",
-            "We are 100% founder and team-owned, profitable, and we keep our team lean. Over time, this page will become more polished, but for now, we're focused on delivering for developers.",
-            "If you're interested in building the future of PM, check out our open roles below.",
+            "Teiwah is an independent, bootstrapped product built and run from Israel. We started it to scratch our own itch: getting a WhatsApp number to talk to our code shouldn't require weeks of setup.",
+            "We keep the team and the product lean on purpose. Fewer features, done well, beats a sprawling platform you have to fight with. Most of our time goes into making the connection reliable and the API boring to use.",
           ]}
-          ctaButton={{
-            href: "/careers",
-            text: "View open roles",
-          }}
         />
       </div>
 
@@ -35,14 +30,14 @@ const About = () => {
       <div className="flex flex-col gap-8 lg:gap-16 xl:gap-20">
         <TextSection
           paragraphs={[
-            "At Mainline, we are dedicated to transforming the way teams plan, execute, and deliver projects. Our mission is to provide our customers with an unbeatable edge over delays, inefficiencies, and disorganisation through actionable insights and seamless collaboration. We'll stop at nothing to give you the tools you need to get every project across the finish line.",
-            "We're customer-obsessed — investing the time to understand every aspect of your workflow so that we can help you operate better than ever before. We're all in this together because your success is our success. In our history as a company, we've never lost a customer, because when your projects succeed, so do we.",
+            "Our goal is simple: let developers and automation builders send and receive WhatsApp messages over HTTP without the usual ceremony. Connect a number, set a webhook, send a request — that's the whole product.",
+            "We bill one transparent price per connected number and never store your full API keys in plain text. If something breaks or you have a question, you reach a real person, not a ticket maze.",
           ]}
         />
         <ImageSection
           images={[
-            { src: "/about/3.webp", alt: "Modern workspace" },
-            { src: "/about/4.webp", alt: "Team collaboration" },
+            { src: "/about/3.webp", alt: "Building reliable messaging" },
+            { src: "/about/4.webp", alt: "Focused on developers" },
           ]}
           className="hidden lg:flex xl:translate-x-10"
         />

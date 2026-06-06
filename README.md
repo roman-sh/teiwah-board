@@ -1,78 +1,53 @@
-# Mainline Next.js Template
+# Teiwah Board
 
-Mainline is a free template built with shadcn/ui, Tailwind 4 and Next.js 15.
+The Teiwah dashboard and marketing site — a Next.js 15 app for the Teiwah WhatsApp messaging API. It hosts the public site (home, pricing, FAQ, about, contact, legal) and the authenticated session dashboard.
 
-- [Demo](https://mainline-nextjs-template.vercel.app/)
-- [Documentation](https://docs.shadcnblocks.com/templates/getting-started)
-- [Figma](https://www.figma.com/design/cFCLMj7DFv0sK7EVsqKeTa/Mainline?node-id=23250-13201&t=I1nAdchDpknii5Bd-1)
-
-![Mainline NextJS Template screenshot](./public/og-image.jpg)
+Built on the shadcnblocks "Mainline" template (Next.js 15 App Router, Tailwind 4, shadcn/ui, Clerk auth).
 
 ## Getting Started
 
 ```bash
 npm install
-```
-
-```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-## Features
+## Environment
 
-### Core Technology Stack
+Copy the required variables into `.env.local`:
 
-- **Next.js 15** with App Router
-- **Tailwind CSS 4** for styling
-- **shadcn/ui** components
-- **TypeScript** support
-- **React 19**
+```bash
+# Clerk auth
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=...
+CLERK_SECRET_KEY=...
+NEXT_PUBLIC_CLERK_SIGN_IN_URL=/login
+NEXT_PUBLIC_CLERK_SIGN_UP_URL=/signup
+NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL=/dashboard
+NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/dashboard
 
-### Key Features
+# Public site URL (used for metadata/OG). Set to https://teiwah.cloud in production.
+NEXT_PUBLIC_APP_URL=http://localhost:3000
 
-- **Shadcn UI**: uses [shadcn/ui](https://ui.shadcn.com/) core UI components
-- **Theme System**: Dark/light mode with `next-themes`, compatible with [tweakcn](https://tweakcn.com)
-- **Form Handling**: React Hook Form + Zod validation
-- **Server Actions**: Next-safe-action integration for server-side logic
-- **MDX Support**: For content pages
-- **Animations**: Motion library (Framer Motion) integration
-- **ESLint/Prettier**: Pre-configured code formatting and linting
-- **Custom Fonts**: DM Sans font family included
-- **Icons**: Lucide React + React Icons libraries
-- **Styleglide Integration**: For component previews/development
-- **Responsive Design**: Mobile-friendly layout
-- **SEO Ready**: Proper metadata and OG images included
+# Backend (control + per-session SSE), routed via api.teiwah.cloud
+NEXT_PUBLIC_CONTROL_APP_BASE_URL=https://api.teiwah.cloud
+NEXT_PUBLIC_SESSION_STREAM_BASE_URL=https://api.teiwah.cloud
+```
 
-### Pre-built Pages
+## Public pages
 
-- Home/Landing page
-- About page
-- Pricing page
-- FAQ page
-- Contact page with form
-- Login/Signup pages
+- `/` — landing (hero, how-it-works, capabilities, pricing, FAQ)
+- `/pricing` — single per-session plan ($2.95/session/month)
+- `/faq`, `/about`, `/contact`
+- `/privacy`, `/terms`, `/refund` — legal (MDX)
+- `/dashboard` — authenticated session management (Clerk-protected)
 
-### Blocks
+## Build
 
-- Hero section
-- Logo showcase/marquee
-- Features section
-- Resource allocation section
-- Testimonials with carousel
-- Pricing table
-- FAQ with accordion
-- Footer
-- Navigation bar
+```bash
+npm run build
+```
 
 ## Deployment
 
-Production-ready and tested for deployment on [Vercel](https://vercel.com)
-
-## Credits
-
-- Template by [shadcnblocks.com](https://shadcnblocks.com)
-- Design by [Callum Flack](https://x.com/callumflack)
-- Dev by [Yassine Zaanouni](https://x.com/YassineZaanouni)
-- Produced by [Rob Austin](https://x.com/ausrobdev)
+The app uses Clerk middleware and server actions. It deploys cleanly to Vercel. For Cloudflare, use the `@cloudflare/next-on-pages` (or OpenNext) adapter, since the App Router middleware and server actions need a Node/edge runtime adapter.

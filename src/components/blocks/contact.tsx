@@ -2,65 +2,41 @@ import React from "react";
 
 import Link from "next/link";
 
-import { Facebook, Linkedin, Twitter } from "lucide-react";
-
 import { ContactForm } from "@/components/blocks/contact-form";
 import { DashedLine } from "@/components/dashed-line";
 
 const contactInfo = [
   {
-    title: "Corporate office",
-    content: (
-      <p className="text-muted-foreground mt-3">
-        1 Carlsberg Close
-        <br />
-        1260 Hillview, Australia
-      </p>
-    ),
-  },
-  {
     title: "Email us",
     content: (
       <div className="mt-3">
-        <div>
-          <p className="">Careers</p>
-          <Link
-            href="mailto:careers@example.com"
-            className="text-muted-foreground hover:text-foreground"
-          >
-            careers@example.com
-          </Link>
-        </div>
-        <div className="mt-1">
-          <p className="">Press</p>
-          <Link
-            href="mailto:press@example.com"
-            className="text-muted-foreground hover:text-foreground"
-          >
-            press@example.com
-          </Link>
-        </div>
+        <p className="">Support & general enquiries</p>
+        <Link
+          href="mailto:support@teiwah.cloud"
+          className="text-muted-foreground hover:text-foreground"
+        >
+          support@teiwah.cloud
+        </Link>
       </div>
     ),
   },
   {
-    title: "Follow us",
+    title: "Billing",
     content: (
-      <div className="mt-3 flex gap-6 lg:gap-10">
-        <Link href="#" className="text-muted-foreground hover:text-foreground">
-          <Facebook className="size-5" />
-        </Link>
+      <div className="mt-3">
+        <p className="">Payments are handled by our reseller</p>
         <Link
-          href="https://x.com/ausrobdev"
+          href="mailto:support@teiwah.cloud"
           className="text-muted-foreground hover:text-foreground"
         >
-          <Twitter className="size-5" />
-        </Link>
-        <Link href="#" className="text-muted-foreground hover:text-foreground">
-          <Linkedin className="size-5" />
+          support@teiwah.cloud
         </Link>
       </div>
     ),
+  },
+  {
+    title: "Location",
+    content: <p className="text-muted-foreground mt-3">Israel</p>,
   },
 ];
 
@@ -72,7 +48,8 @@ export default function Contact() {
           Contact us
         </h1>
         <p className="text-muted-foreground mt-4 text-center leading-snug font-medium lg:mx-auto">
-          Hopefully this form gets through our spam filters.
+          Questions about Teiwah, your account, or billing? Email us or use the
+          form below — we read every message.
         </p>
 
         <div className="mt-10 flex justify-between gap-8 max-sm:flex-col md:mt-14 lg:mt-20 lg:gap-12">

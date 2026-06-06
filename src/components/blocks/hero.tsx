@@ -1,38 +1,40 @@
-import Image from "next/image";
+import Link from "next/link";
 
-import {
-  ArrowRight,
-  Blend,
-  ChartNoAxesColumn,
-  CircleDot,
-  Diamond,
-} from "lucide-react";
+import { ArrowRight, KeyRound, QrCode, Send, Webhook } from "lucide-react";
 
 import { DashedLine } from "@/components/dashed-line";
 import { Button } from "@/components/ui/button";
 
 const features = [
   {
-    title: "Tailored workflows",
-    description: "Track progress across custom issue flows for your team.",
-    icon: CircleDot,
+    title: "Connect by QR",
+    description: "Scan a QR code once to link a WhatsApp number to your account.",
+    icon: QrCode,
   },
   {
-    title: "Cross-team projects",
-    description: "Collaborate across teams and departments.",
-    icon: Blend,
+    title: "Per-session API key",
+    description: "Every connected number gets its own key for sending messages.",
+    icon: KeyRound,
   },
   {
-    title: "Milestones",
-    description: "Break projects down into concrete phases.",
-    icon: Diamond,
+    title: "Inbound webhooks",
+    description: "Incoming messages are delivered to your URL as a simple JSON POST.",
+    icon: Webhook,
   },
   {
-    title: "Progress insights",
-    description: "Track scope, velocity, and progress over time.",
-    icon: ChartNoAxesColumn,
+    title: "Send over HTTP",
+    description: "One POST request sends a WhatsApp message. No SDK required.",
+    icon: Send,
   },
 ];
+
+const codeSnippet = `curl https://api.teiwah.cloud/messages \\
+  -H "Authorization: Bearer <your-session-key>" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "to": "15551234567@s.whatsapp.net",
+    "text": "Hello from Teiwah 👋"
+  }'`;
 
 export const Hero = () => {
   return (
@@ -40,33 +42,28 @@ export const Hero = () => {
       <div className="container flex flex-col justify-between gap-8 md:gap-14 lg:flex-row lg:gap-20">
         {/* Left side - Main content */}
         <div className="flex-1">
-          <h1 className="text-foreground max-w-160 text-3xl tracking-tight md:text-4xl lg:text-5xl xl:whitespace-nowrap">
-            Mainline Next.js template
+          <h1 className="text-foreground max-w-160 text-3xl tracking-tight md:text-4xl lg:text-5xl">
+            A simple WhatsApp messaging API
           </h1>
 
-          <p className="text-muted-foreground text-1xl mt-5 md:text-3xl">
-            Mainline is an open-source website template built with shadcn/ui,
-            Tailwind 4 & Next.js
+          <p className="text-muted-foreground mt-5 max-w-xl text-lg md:text-2xl">
+            Connect a WhatsApp number, then send and receive messages over plain
+            HTTP. Built for developers, n8n, Make and no-code automations.
           </p>
 
           <div className="mt-8 flex flex-wrap items-center gap-4 lg:flex-nowrap">
             <Button asChild>
-              <a href="https://github.com/shadcnblocks/mainline-nextjs-template">
-                Get template
-              </a>
+              <Link href="/dashboard">Get started</Link>
             </Button>
             <Button
               variant="outline"
               className="from-background h-auto gap-2 bg-linear-to-r to-transparent shadow-md"
               asChild
             >
-              <a
-                href="https://shadcnblocks.com"
-                className="max-w-56 truncate text-start md:max-w-none"
-              >
-                Built by shadcnblocks.com
+              <Link href="/pricing">
+                View pricing
                 <ArrowRight className="stroke-3" />
-              </a>
+              </Link>
             </Button>
           </div>
         </div>
@@ -100,14 +97,19 @@ export const Hero = () => {
         </div>
       </div>
 
-      <div className="mt-12 max-lg:ml-6 max-lg:h-[550px] max-lg:overflow-hidden md:mt-20 lg:container lg:mt-24">
-        <div className="relative h-[793px] w-full">
-          <Image
-            src="/hero.webp"
-            alt="hero"
-            fill
-            className="rounded-2xl object-cover object-left-top shadow-lg max-lg:rounded-tr-none"
-          />
+      <div className="mt-12 md:mt-20 lg:container lg:mt-24">
+        <div className="bg-foreground/95 dark:bg-muted relative overflow-hidden rounded-2xl shadow-lg max-lg:mx-6 max-lg:rounded-tr-none">
+          <div className="flex items-center gap-2 border-b border-white/10 px-5 py-3.5">
+            <span className="size-3 rounded-full bg-red-400/80" />
+            <span className="size-3 rounded-full bg-yellow-400/80" />
+            <span className="size-3 rounded-full bg-green-400/80" />
+            <span className="ml-3 font-mono text-xs text-white/50">
+              Send a message
+            </span>
+          </div>
+          <pre className="overflow-x-auto p-5 font-mono text-xs leading-relaxed text-green-300 sm:text-sm md:p-8">
+            <code>{codeSnippet}</code>
+          </pre>
         </div>
       </div>
     </section>

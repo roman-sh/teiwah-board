@@ -7,7 +7,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { SignInButton, UserButton , useAuth } from "@clerk/nextjs";
-import { ChevronRight, Github } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
@@ -23,23 +23,24 @@ import { cn } from "@/lib/utils";
 
 const ITEMS = [
   {
-    label: "Features",
-    href: "#features",
+    label: "Product",
+    href: "/#how-it-works",
     dropdownItems: [
       {
-        title: "Modern product teams",
-        href: "/#feature-modern-teams",
+        title: "How it works",
+        href: "/#how-it-works",
         description:
-          "Mainline is built on the habits that make the best product teams successful",
+          "Connect a WhatsApp number, get an API key and webhook, start sending in minutes.",
       },
       {
-        title: "Resource Allocation",
-        href: "/#resource-allocation",
-        description: "Mainline your resource allocation and execution",
+        title: "Features",
+        href: "/#features",
+        description:
+          "Inbound webhooks, outbound HTTP API, per-session keys and a live dashboard.",
       },
     ],
   },
-  { label: "About Us", href: "/about" },
+  { label: "About", href: "/about" },
   { label: "Pricing", href: "/pricing" },
   { label: "FAQ", href: "/faq" },
   { label: "Contact", href: "/contact" },
@@ -62,8 +63,8 @@ export const Navbar = () => {
         <Link href="/" className="flex shrink-0 items-center gap-2">
           <Image
             src="/logo.svg"
-            alt="logo"
-            width={94}
+            alt="Teiwah"
+            width={104}
             height={18}
             className="dark:invert"
           />
@@ -138,13 +139,6 @@ export const Navbar = () => {
               </>
             )}
           </div>
-          <a
-            href="https://github.com/shadcnblocks/mainline-nextjs-template"
-            className="text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <Github className="size-4" />
-            <span className="sr-only">GitHub</span>
-          </a>
 
           {/* Hamburger Menu Button (Mobile Only) */}
           <button

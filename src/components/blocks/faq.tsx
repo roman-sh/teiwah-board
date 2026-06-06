@@ -10,52 +10,67 @@ import { cn } from "@/lib/utils";
 
 const categories = [
   {
-    title: "Support",
+    title: "Getting started",
     questions: [
       {
-        question: "How do I update my account without breaking my laptop?",
+        question: "What is Teiwah?",
         answer:
-          "Lorem ipsum dolor sit amet consectetur adipisicing elit. Minus voluptates deserunt officia temporibus dignissimos.",
+          "Teiwah is a WhatsApp messaging API. You connect a WhatsApp number to your account, and from then on you can send and receive messages over plain HTTP — no SDK required.",
       },
       {
-        question: "Is support free, or do I need to Google everything?",
+        question: "Do I need the official WhatsApp Business API or Meta approval?",
         answer:
-          "Lorem ipsum dolor sit amet consectetur adipisicing elit. Minus voluptates deserunt officia temporibus dignissimos.",
+          "No. You connect a WhatsApp number you already control by scanning a QR code, the same way you would link WhatsApp Web. There is no business verification or app review step.",
       },
       {
-        question: "Are you going to be subsumed by AI?",
+        question: "How do I connect a number?",
         answer:
-          "Lorem ipsum dolor sit amet consectetur adipisicing elit. Minus voluptates deserunt officia temporibus dignissimos.",
+          "Create a session in your dashboard, then scan the QR code with the WhatsApp app on your phone. The dashboard shows the connection status live. Each session represents one connected number.",
       },
     ],
   },
   {
-    title: "Your account",
+    title: "Billing",
     questions: [
       {
-        question: "Is support free, or do I need to Google everything?",
+        question: "How much does it cost?",
         answer:
-          "Lorem ipsum dolor sit amet consectetur adipisicing elit. Minus voluptates deserunt officia temporibus dignissimos.",
+          "Each session is $2.95 per month. A session is one connected WhatsApp number.",
       },
       {
-        question: "Are you going to be subsumed by AI?",
+        question: "How do I connect more than one number?",
         answer:
-          "Lorem ipsum dolor sit amet consectetur adipisicing elit. Minus voluptates deserunt officia temporibus dignissimos.",
+          "Increase the quantity at checkout. Each unit covers one additional session, billed at the same $2.95 per month. There are no annual plans or bundles.",
+      },
+      {
+        question: "Can I cancel?",
+        answer:
+          "Yes. You can cancel at any time from the billing portal. Your sessions keep working until the end of the current billing period.",
+      },
+      {
+        question: "Do you offer refunds?",
+        answer:
+          "See our Refund Policy for details on eligibility and how to request a refund.",
       },
     ],
   },
   {
-    title: "Other questions",
+    title: "Using the API",
     questions: [
       {
-        question: "Is support free, or do I need to Google everything?",
+        question: "How do I send a message?",
         answer:
-          "Lorem ipsum dolor sit amet consectetur adipisicing elit. Minus voluptates deserunt officia temporibus dignissimos.",
+          "Send an authenticated POST request to /messages with your per-session API key and a JSON body containing the recipient and text. That's the whole flow.",
       },
       {
-        question: "Are you going to be subsumed by AI?",
+        question: "How do I receive messages?",
         answer:
-          "Lorem ipsum dolor sit amet consectetur adipisicing elit. Minus voluptates deserunt officia temporibus dignissimos.",
+          "Set a webhook URL on your session. Every incoming message is forwarded to that URL as a JSON POST, so your app or automation can react to it.",
+      },
+      {
+        question: "Is Teiwah affiliated with WhatsApp or Meta?",
+        answer:
+          "No. Teiwah is an independent service and is not affiliated with, endorsed by, or sponsored by WhatsApp or Meta Platforms, Inc. You are responsible for using your number in line with WhatsApp's terms and applicable anti-spam laws.",
       },
     ],
   },

@@ -6,7 +6,6 @@ import type { Metadata } from "next";
 
 import { Footer } from "@/components/blocks/footer";
 import { Navbar } from "@/components/blocks/navbar";
-import { StyleGlideProvider } from "@/components/styleglide-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import "@/styles/globals.css";
@@ -70,29 +69,26 @@ if (!process.env.NEXT_PUBLIC_APP_URL) {
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL),
   title: {
-    default: "Mainline - Modern Next.js Template",
-    template: "%s | Mainline",
+    default: "Teiwah — WhatsApp Messaging API for Developers & Automations",
+    template: "%s | Teiwah",
   },
   description:
-    "A modern Next.js template built with shadcn/ui, Tailwind & MDX. Open source - MIT License.",
+    "Teiwah is a simple WhatsApp messaging API. Connect a number by scanning a QR code, then send and receive messages over HTTP with webhooks. Built for developers, n8n, Make and no-code automations.",
   keywords: [
-    "Next.js",
-    "nextjs template",
-    "nextjs theme",
-    "nextjs starter",
-    "shadcn template",
-    "shadcn theme",
-    "shadcn starter",
-    "tailwind template",
-    "tailwind theme",
-    "tailwind starter",
-    "mdx template",
-    "mdx theme",
-    "mdx starter",
+    "WhatsApp API",
+    "WhatsApp messaging API",
+    "send WhatsApp messages",
+    "WhatsApp webhook",
+    "WhatsApp automation",
+    "n8n WhatsApp",
+    "Make WhatsApp",
+    "chatbot API",
+    "messaging API",
+    "developer API",
   ],
-  authors: [{ name: "shadcnblocks.com" }],
-  creator: "shadcnblocks.com",
-  publisher: "shadcnblocks.com",
+  authors: [{ name: "Teiwah" }],
+  creator: "Teiwah",
+  publisher: "Teiwah",
   robots: {
     index: true,
     follow: true,
@@ -109,26 +105,25 @@ export const metadata: Metadata = {
     shortcut: [{ url: "/favicon/favicon.ico" }],
   },
   openGraph: {
-    title: "Mainline - Modern Next.js Template",
+    title: "Teiwah — WhatsApp Messaging API",
     description:
-      "A modern Next.js template built with shadcn/ui, Tailwind & MDX. Open source - MIT License.",
-    siteName: "Mainline",
+      "Connect a WhatsApp number by scanning a QR code, then send and receive messages over HTTP with webhooks. Built for developers and automations.",
+    siteName: "Teiwah",
     images: [
       {
         url: "/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: "Mainline - Modern Next.js Template",
+        alt: "Teiwah — WhatsApp Messaging API",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Mainline - Modern Next.js Template",
+    title: "Teiwah — WhatsApp Messaging API",
     description:
-      "A modern Next.js template built with shadcn/ui, Tailwind & MDX. Open source - MIT License.",
+      "Connect a WhatsApp number by scanning a QR code, then send and receive messages over HTTP with webhooks. Built for developers and automations.",
     images: ["/og-image.jpg"],
-    creator: "@ausrobdev",
   },
 };
 
@@ -139,13 +134,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        <script
-          async
-          crossOrigin="anonymous"
-          src="https://tweakcn.com/live-preview.min.js"
-        />
-      </head>
       <ClerkProvider afterSignOutUrl="/">
         <body className={`${dmSans.variable} ${inter.variable} antialiased`}>
           <ThemeProvider
@@ -155,7 +143,6 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <TooltipProvider>
-              <StyleGlideProvider />
               <Navbar />
               <main className="">{children}</main>
               <Footer />
