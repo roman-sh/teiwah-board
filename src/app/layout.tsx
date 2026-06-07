@@ -2,6 +2,7 @@ import { Inter } from "next/font/google";
 import localFont from "next/font/local";
 
 import { ClerkProvider } from "@clerk/nextjs";
+import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from "next";
 
 import { Footer } from "@/components/blocks/footer";
@@ -158,6 +159,7 @@ export default function RootLayout({
               <Footer />
             </TooltipProvider>
           </ThemeProvider>
+          <Analytics />
         </body>
       </ClerkProvider>
     </html>
