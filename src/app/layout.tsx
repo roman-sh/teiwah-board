@@ -134,7 +134,17 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <ClerkProvider afterSignOutUrl="/">
+      <ClerkProvider
+        afterSignOutUrl="/"
+        localization={{
+          signIn: {
+            start: {
+              subtitle:
+                "Teiwah is in private beta. Please join the waitlist.",
+            },
+          },
+        }}
+      >
         <body className={`${dmSans.variable} ${inter.variable} antialiased`}>
           <ThemeProvider
             attribute="class"

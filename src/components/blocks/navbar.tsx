@@ -127,7 +127,7 @@ export const Navbar = () => {
             {!isSignedIn ? (
               <SignInButton mode="modal">
                 <Button variant="outline">
-                  <span className="relative z-10">Login</span>
+                  <span className="relative z-10">Register</span>
                 </Button>
               </SignInButton>
             ) : (
