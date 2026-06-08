@@ -141,8 +141,13 @@ export default function RootLayout({
           signIn: {
             start: {
               subtitle:
-                "Teiwah is in private beta. Join the waitlist for free access.",
+                "Teiwah is in private beta.\nJoin the waitlist for free access.",
             },
+          },
+        }}
+        appearance={{
+          elements: {
+            headerSubtitle: { whiteSpace: "pre-line" },
           },
         }}
       >
