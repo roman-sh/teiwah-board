@@ -40,6 +40,7 @@ const ITEMS = [
       },
     ],
   },
+  { label: "Docs", href: "https://docs.teiwah.cloud", external: true },
   { label: "About", href: "/about" },
   { label: "Pricing", href: "/pricing" },
   { label: "FAQ", href: "/faq" },
@@ -107,6 +108,9 @@ export const Navbar = () => {
                 <NavigationMenuItem key={link.label} className="">
                   <Link
                     href={link.href}
+                    {...(link.external
+                      ? { target: "_blank", rel: "noopener noreferrer" }
+                      : {})}
                     className={cn(
                       "relative bg-transparent px-1.5 text-sm font-medium transition-opacity hover:opacity-75",
                       pathname === link.href && "text-muted-foreground",
@@ -239,6 +243,9 @@ export const Navbar = () => {
               <Link
                 key={link.label}
                 href={link.href}
+                {...(link.external
+                  ? { target: "_blank", rel: "noopener noreferrer" }
+                  : {})}
                 className={cn(
                   "text-primary hover:text-primary/80 py-4 text-base font-medium transition-colors first:pt-0 last:pb-0",
                   pathname === link.href && "text-muted-foreground",
