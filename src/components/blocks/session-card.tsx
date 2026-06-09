@@ -358,7 +358,7 @@ function SessionOnboardingModal({
                 />
               </div>
               <p className="shrink-0 pb-1 text-xs text-muted-foreground">
-                This usually takes about 30 seconds
+                This usually takes about a minute
               </p>
             </>
           )}
