@@ -1,5 +1,11 @@
-import { SESSIONS_PATH, SESSION_API_KEY_PATH } from "@/constants/session"
+import {
+  BILLING_CHECKOUT_PATH,
+  BILLING_SANDBOX_PATH,
+  SESSIONS_PATH,
+  SESSION_API_KEY_PATH
+} from "@/constants/session"
 import { api } from "@/lib/api"
+import type { CheckoutSettings, SandboxParams } from "@/lib/freemius-checkout"
 
 // -----------------------------------------------------------------------------
 // TYPES
@@ -30,6 +36,28 @@ export type SessionApiKeyResponse = {
   apiKey: string
 }
 
+/**
+ * Live per-user billing block (BILLING.md §7). `null` when Freemius is
+ * unavailable — the grid still renders from the `sessions` array. `used` is not
+ * sent; derive it from `sessions.length`.
+ */
+export type BillingBlock = {
+  quota: number
+  isTrial: boolean
+  trialEndsAt: string | null
+}
+
+/** GET /sessions response — sessions always present, billing may be null. */
+export type SessionsResponse = {
+  sessions: DashboardSession[]
+  billing: BillingBlock | null
+}
+
+/** POST /billing/checkout response — license-scoped overlay settings. */
+export type CheckoutResponse = {
+  checkout: { settings: CheckoutSettings }
+}
+
 // -----------------------------------------------------------------------------
 // API METHODS
 // -----------------------------------------------------------------------------
@@ -38,8 +66,32 @@ export type SessionApiKeyResponse = {
  * Fetches all existing sessions for the current user from the Control App.
  * This does NOT connect to the individual worker pods; it just gets the inventory.
  */
-export async function fetchSessions(): Promise<DashboardSession[]> {
-  return api.get(SESSIONS_PATH).json<DashboardSession[]>()
+export async function fetchSessions(): Promise<SessionsResponse> {
+  return api.get(SESSIONS_PATH).json<SessionsResponse>()
+}
+
+/**
+ * Asks the Control App to authorize a license-scoped Freemius checkout for the
+ * current user (trial Subscribe / convert). Omits `quota` to stay at the current
+ * seat count. Returns overlay `settings` to open with @freemius/checkout.
+ */
+export async function requestCheckout(): Promise<CheckoutResponse> {
+  return api.post(BILLING_CHECKOUT_PATH, { json: {} }).json<CheckoutResponse>()
+}
+
+/**
+ * Fetches Freemius sandbox params for the client-built new-purchase overlay.
+ *
+ * Short-circuits to null in production (the overlay opens live) so we never even
+ * hit the endpoint there; outside production the backend returns `{ ctx, token }`
+ * to put the overlay in sandbox/test mode.
+ */
+export async function fetchSandboxParams(): Promise<SandboxParams | null> {
+  if (process.env.NODE_ENV === "production") return null
+  const { sandbox } = await api
+    .get(BILLING_SANDBOX_PATH)
+    .json<{ sandbox: SandboxParams | null }>()
+  return sandbox
 }
 
 /**

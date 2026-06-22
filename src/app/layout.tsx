@@ -8,6 +8,7 @@ import type { Metadata } from "next";
 import { Footer } from "@/components/blocks/footer";
 import { Navbar } from "@/components/blocks/navbar";
 import { ThemeProvider } from "@/components/theme-provider";
+import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import "@/styles/globals.css";
 
@@ -163,6 +164,7 @@ export default function RootLayout({
               <main className="">{children}</main>
               <Footer />
             </TooltipProvider>
+            <Toaster />
           </ThemeProvider>
           <Analytics />
         </body>

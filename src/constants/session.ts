@@ -75,6 +75,22 @@ export const SESSION_STREAM_BASE_URL: string =
 export const SESSIONS_PATH = "sessions"
 
 /**
+ * Create a license-scoped Freemius checkout (Subscribe / upgrade authorization).
+ *
+ * Used for POST /billing/checkout — backend resolves the license server-side and
+ * returns overlay `settings`. Called via session.service.ts → lib/api.ts.
+ */
+export const BILLING_CHECKOUT_PATH = "billing/checkout"
+
+/**
+ * Fetch Freemius sandbox params ({ ctx, token }) for the client-built
+ * new-purchase overlay. Returns `{ sandbox: null }` in production.
+ *
+ * Used for GET /billing/sandbox — dev/test only. Called via session.service.ts.
+ */
+export const BILLING_SANDBOX_PATH = "billing/sandbox"
+
+/**
  * Save the user's inbound webhook URL for a session.
  *
  * Used for PATCH /sessions/:id/webhook.
