@@ -9,10 +9,12 @@ import {
   Smartphone,
   AlertTriangle,
   X,
-  Circle
+  Circle,
+  RotateCcw
 } from "lucide-react"
 import { motion, useReducedMotion } from "motion/react"
 import { QRCodeSVG } from "qrcode.react"
+import { toast } from "sonner"
 
 import { ApiKeyField } from "@/components/blocks/api-key-field"
 import { WebhookConfigForm } from "@/components/blocks/webhook-config-form"
@@ -25,9 +27,14 @@ import {
   CardHeader,
   CardTitle
 } from "@/components/ui/card"
-import { useSessionStream, type BaileysStatus } from "@/hooks/use-session-stream"
+import {
+  useSessionStream,
+  type BaileysStatus,
+  type SessionDisconnectReason
+} from "@/hooks/use-session-stream"
 import { formatPhoneNumber } from "@/lib/format-phone"
 import { cn } from "@/lib/utils"
+import { reconnectSession } from "@/services/session.service"
 
 type SessionCardProps = {
   sessionId: string
@@ -385,6 +392,14 @@ function SessionStatusBadge({ children }: { children: ReactNode }) {
   )
 }
 
+/** Human-readable copy for a worker disconnect reason. */
+const DISCONNECT_REASON_LABELS: Record<SessionDisconnectReason, string> = {
+  logged_out: "You logged this device out from your phone.",
+  forbidden: "WhatsApp removed this device.",
+  bad_session: "The session expired and must be re-linked.",
+  restricted: "Your WhatsApp account is currently restricted."
+}
+
 export function SessionCard({
   sessionId,
   isProvisioning = false,
@@ -397,11 +412,13 @@ export function SessionCard({
     isLocalProvisioning,
     qr,
     phoneNumber,
+    disconnectReason,
     isStreamConnected
   } = useSessionStream(sessionId, isProvisioning)
 
   const [suppressQrModal, setSuppressQrModal] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isReconnecting, setIsReconnecting] = useState(false)
   const [savedWebhookUrl, setSavedWebhookUrl] = useState(webhookUrl?.trim() ?? "")
 
   const allowAutoOpenQrModalRef = useRef(isProvisioning)
@@ -435,6 +452,22 @@ export function SessionCard({
   function handleShowQrModal() {
     setSuppressQrModal(false)
     setIsModalOpen(true)
+  }
+
+  async function handleReconnect() {
+    setIsReconnecting(true)
+    try {
+      await reconnectSession(sessionId)
+      // A wiped session re-pairs with a fresh QR over SSE — re-arm the onboarding
+      // modal so it auto-opens again once the worker advances past 'disconnected'.
+      setSuppressQrModal(false)
+      allowAutoOpenQrModalRef.current = true
+    } catch (error) {
+      console.error(`[session ${sessionId}] Reconnect failed:`, error)
+      toast.error("Couldn't reconnect. Please try again.")
+    } finally {
+      setIsReconnecting(false)
+    }
   }
 
   const onboardingPhase = useOnboardingPhase(status, qr)
@@ -547,6 +580,28 @@ export function SessionCard({
               <p className="text-muted-foreground text-sm">
                 Status: <span className="font-medium text-red-500">Disconnected</span>
               </p>
+              {disconnectReason && (
+                <p className="text-muted-foreground text-sm text-center max-w-xs">
+                  {DISCONNECT_REASON_LABELS[disconnectReason]}
+                </p>
+              )}
+              <Button
+                onClick={handleReconnect}
+                disabled={isReconnecting}
+                className="mt-2"
+              >
+                {isReconnecting ? (
+                  <>
+                    <Loader2 className="animate-spin" />
+                    Reconnecting...
+                  </>
+                ) : (
+                  <>
+                    <RotateCcw />
+                    Reconnect
+                  </>
+                )}
+              </Button>
             </>
           )}
         </div>

@@ -121,3 +121,13 @@ export const SESSION_API_KEY_PATH = "sessions/{SESSION_ID}/api-key"
  * Wired in use-session-stream.ts via fetch-event-source + authenticatedFetch.
  */
 export const SESSION_EVENTS_PATH = "sessions/{SESSION_ID}/events"
+
+/**
+ * Re-initiate the worker connection after a logout/disconnect.
+ *
+ * Used for POST /sessions/:id/reconnect — the worker bounces its Baileys socket
+ * (re-pairing via a fresh QR when auth was wiped). Progress is observed on the
+ * existing SSE stream, not this response (202 Accepted).
+ * Substitute {SESSION_ID} before calling api.post().
+ */
+export const SESSION_RECONNECT_PATH = "sessions/{SESSION_ID}/reconnect"

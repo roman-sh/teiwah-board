@@ -2,7 +2,8 @@ import {
   BILLING_CHECKOUT_PATH,
   BILLING_SANDBOX_PATH,
   SESSIONS_PATH,
-  SESSION_API_KEY_PATH
+  SESSION_API_KEY_PATH,
+  SESSION_RECONNECT_PATH
 } from "@/constants/session"
 import { api } from "@/lib/api"
 import type { CheckoutSettings, SandboxParams } from "@/lib/freemius-checkout"
@@ -107,4 +108,14 @@ export async function fetchSessionApiKey(sessionId: string): Promise<SessionApiK
   return api
     .get(SESSION_API_KEY_PATH.replace("{SESSION_ID}", sessionId))
     .json<SessionApiKeyResponse>()
+}
+
+/**
+ * POST /sessions/:id/reconnect — ask the worker to re-initiate its connection
+ * after a logout. Returns 202; the resulting QR/status arrives on the SSE stream.
+ */
+export async function reconnectSession(sessionId: string): Promise<{ ok: true }> {
+  return api
+    .post(SESSION_RECONNECT_PATH.replace("{SESSION_ID}", sessionId))
+    .json<{ ok: true }>()
 }

@@ -69,6 +69,17 @@ export type BaileysStatus =
   | "connected"
   | "disconnected"
 
+/**
+ * Why a disconnected session needs the user to act, vs. a transient drop the
+ * worker recovers from on its own (mirrors nestwaileys SessionDisconnectReason).
+ * Only set on auth-invalidating closes — the cases where Reconnect re-pairs.
+ */
+export type SessionDisconnectReason =
+  | "logged_out"
+  | "forbidden"
+  | "bad_session"
+  | "restricted"
+
 export function useSessionStream(sessionId: string, initialProvisioning: boolean) {
   const { isLoaded, isSignedIn } = useAuth()
 
@@ -83,6 +94,11 @@ export function useSessionStream(sessionId: string, initialProvisioning: boolean
 
   const [qr, setQr] = useState<string | null>(null)
   const [phoneNumber, setPhoneNumber] = useState<string | null>(null)
+
+  // Why we're disconnected (set only on auth-invalidating closes); null while
+  // connected/transient. Drives the disconnect reason text on the card.
+  const [disconnectReason, setDisconnectReason] =
+    useState<SessionDisconnectReason | null>(null)
 
   // True after HTTP 200 on the SSE connection. UI uses this with status:
   //   isStreamConnected && status === "waiting_qr" → show "Show QR Code" button
@@ -180,6 +196,11 @@ export function useSessionStream(sessionId: string, initialProvisioning: boolean
           if ("phoneNumber" in payload) {
             setPhoneNumber(payload.phoneNumber as string | null)
           }
+          if ("disconnectReason" in payload) {
+            setDisconnectReason(
+              payload.disconnectReason as SessionDisconnectReason | null
+            )
+          }
         },
 
         onerror(err) {
@@ -220,6 +241,7 @@ export function useSessionStream(sessionId: string, initialProvisioning: boolean
     isLocalProvisioning,
     qr,
     phoneNumber,
+    disconnectReason,
     isStreamConnected
   }
 }
