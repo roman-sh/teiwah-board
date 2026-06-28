@@ -9,6 +9,8 @@ import {
   openNewPurchaseCheckout
 } from "@/lib/freemius-checkout"
 import {
+  deleteSession as deleteSessionApi,
+  fetchPortalLink,
   fetchSandboxParams,
   fetchSessions,
   provisionSession,
@@ -163,6 +165,39 @@ export function useSessions() {
   }, [runProvision, handleCreateError])
 
   /**
+   * Delete a session and drop its card from local state on success (no refetch).
+   * Throws on failure so the caller (the card's confirm dialog) can keep itself
+   * open and surface the error; we still toast here for the common case.
+   */
+  const deleteSession = useCallback(async (sessionId: string) => {
+    try {
+      await deleteSessionApi(sessionId)
+      setSessions((prev) =>
+        prev.filter((session) => session.sessionId !== sessionId)
+      )
+      toast.success("Session deleted.")
+    } catch (error) {
+      console.error("Failed to delete session:", error)
+      toast.error("Couldn't delete the session. Please try again.")
+      throw error
+    }
+  }, [])
+
+  /**
+   * Open the Freemius customer portal (downgrade slots, cancel, update payment)
+   * in a new tab. The link is minted per click and short-lived.
+   */
+  const openBillingPortal = useCallback(async () => {
+    try {
+      const { url } = await fetchPortalLink()
+      window.open(url, "_blank", "noopener,noreferrer")
+    } catch (error) {
+      console.error("Failed to open billing portal:", error)
+      toast.error("Couldn't open the billing portal. Please try again shortly.")
+    }
+  }, [])
+
+  /**
    * Trial → paid convert. Authorizes a license-scoped checkout at the current
    * quota (no new session); on overlay success, re-fetch so billing flips to paid.
    */
@@ -186,6 +221,8 @@ export function useSessions() {
     isLoading,
     isCreatingSession,
     createSession,
+    deleteSession,
+    openBillingPortal,
     subscribe
   }
 }

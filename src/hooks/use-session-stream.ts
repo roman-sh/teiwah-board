@@ -72,13 +72,15 @@ export type BaileysStatus =
 /**
  * Why a disconnected session needs the user to act, vs. a transient drop the
  * worker recovers from on its own (mirrors nestwaileys SessionDisconnectReason).
- * Only set on auth-invalidating closes — the cases where Reconnect re-pairs.
+ * Set on auth-invalidating closes (where Reconnect re-pairs) and on `manual`,
+ * the user's own logout via the Disconnect button.
  */
 export type SessionDisconnectReason =
   | "logged_out"
   | "forbidden"
   | "bad_session"
   | "restricted"
+  | "manual"
 
 export function useSessionStream(sessionId: string, initialProvisioning: boolean) {
   const { isLoaded, isSignedIn } = useAuth()

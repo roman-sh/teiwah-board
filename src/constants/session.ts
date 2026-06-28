@@ -131,3 +131,34 @@ export const SESSION_EVENTS_PATH = "sessions/{SESSION_ID}/events"
  * Substitute {SESSION_ID} before calling api.post().
  */
 export const SESSION_RECONNECT_PATH = "sessions/{SESSION_ID}/reconnect"
+
+/**
+ * User-initiated logout for a connected session.
+ *
+ * Used for POST /sessions/:id/disconnect — the worker unlinks the device, wipes
+ * auth, and idles in `disconnected` (reason `manual`). Fire-and-forget (202);
+ * the resulting state arrives on the SSE stream, and a later Reconnect surfaces
+ * a fresh QR. Substitute {SESSION_ID} before calling api.post().
+ */
+export const SESSION_DISCONNECT_PATH = "sessions/{SESSION_ID}/disconnect"
+
+/**
+ * Permanently delete a session (account-management action, not billing).
+ *
+ * Used for DELETE /sessions/:id — control tears down the Zuplo consumer, the k8s
+ * worker pod, then soft-deletes the DB row. SessionOwnerGuard enforces that the
+ * caller owns the session. Deleting does NOT change the Freemius subscription;
+ * to reduce paid slots the user opens the billing portal (BILLING_PORTAL_PATH).
+ * Substitute {SESSION_ID} before calling api.delete().
+ */
+export const SESSION_DELETE_PATH = "sessions/{SESSION_ID}"
+
+/**
+ * Mint a Freemius customer-portal magic link for the current user.
+ *
+ * Used for GET /billing/portal — returns `{ url }`, a short-lived auto-login link
+ * to Freemius' hosted portal (downgrade slots, cancel, update payment). The
+ * dashboard opens it in a new tab; never cache the link. Called via
+ * session.service.ts → lib/api.ts.
+ */
+export const BILLING_PORTAL_PATH = "billing/portal"

@@ -39,13 +39,17 @@ export default function DashboardPage() {
     isLoading,
     isCreatingSession,
     createSession,
+    deleteSession,
+    openBillingPortal,
     subscribe
   } = useSessions()
 
   const used = sessions.length
   const isTrial = billing?.isTrial ?? false
-  // Trial users keep their single session; adding more requires converting first.
-  const showAddCard = !isLoading && !isTrial
+  // Trial users keep their single session; adding more requires converting
+  // first. But always show the Add card at zero sessions so a trial user who
+  // deleted their only session can recreate it (their trial session is free).
+  const showAddCard = !isLoading && (!isTrial || used === 0)
   const trialEndsLabel = isTrial ? formatTrialEnds(billing?.trialEndsAt ?? null) : null
 
   return (
@@ -83,6 +87,8 @@ export default function DashboardPage() {
               webhookUrl={session.webhookUrl}
               apiKey={session.apiKey}
               apiKeyMasked={session.apiKeyMasked}
+              onDelete={deleteSession}
+              onManageBilling={() => void openBillingPortal()}
             />
           ))
         )}

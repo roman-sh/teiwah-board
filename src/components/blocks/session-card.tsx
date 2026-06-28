@@ -10,7 +10,9 @@ import {
   AlertTriangle,
   X,
   Circle,
-  RotateCcw
+  RotateCcw,
+  Trash2,
+  Unplug
 } from "lucide-react"
 import { motion, useReducedMotion } from "motion/react"
 import { QRCodeSVG } from "qrcode.react"
@@ -18,8 +20,19 @@ import { toast } from "sonner"
 
 import { ApiKeyField } from "@/components/blocks/api-key-field"
 import { WebhookConfigForm } from "@/components/blocks/webhook-config-form"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger
+} from "@/components/ui/alert-dialog"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+import { Button, buttonVariants } from "@/components/ui/button"
 import {
   Card,
   CardContent,
@@ -34,7 +47,7 @@ import {
 } from "@/hooks/use-session-stream"
 import { formatPhoneNumber } from "@/lib/format-phone"
 import { cn } from "@/lib/utils"
-import { reconnectSession } from "@/services/session.service"
+import { disconnectSession, reconnectSession } from "@/services/session.service"
 
 type SessionCardProps = {
   sessionId: string
@@ -42,6 +55,10 @@ type SessionCardProps = {
   webhookUrl?: string | null
   apiKey?: string | null
   apiKeyMasked?: string | null
+  /** Permanently delete this session. Rejects on failure (dialog stays open). */
+  onDelete: (sessionId: string) => Promise<void>
+  /** Open the Freemius portal to manage the subscription (downgrade slots). */
+  onManageBilling: () => void
 }
 
 type OnboardingPhase = "setup" | "scan" | "pairing"
@@ -397,7 +414,8 @@ const DISCONNECT_REASON_LABELS: Record<SessionDisconnectReason, string> = {
   logged_out: "You logged this device out from your phone.",
   forbidden: "WhatsApp removed this device.",
   bad_session: "The session expired and must be re-linked.",
-  restricted: "Your WhatsApp account is currently restricted."
+  restricted: "Your WhatsApp account is currently restricted.",
+  manual: "You disconnected this session."
 }
 
 export function SessionCard({
@@ -405,7 +423,9 @@ export function SessionCard({
   isProvisioning = false,
   webhookUrl,
   apiKey,
-  apiKeyMasked
+  apiKeyMasked,
+  onDelete,
+  onManageBilling
 }: SessionCardProps) {
   const {
     status,
@@ -419,6 +439,10 @@ export function SessionCard({
   const [suppressQrModal, setSuppressQrModal] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isReconnecting, setIsReconnecting] = useState(false)
+  const [isDisconnectDialogOpen, setIsDisconnectDialogOpen] = useState(false)
+  const [isDisconnecting, setIsDisconnecting] = useState(false)
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
   const [savedWebhookUrl, setSavedWebhookUrl] = useState(webhookUrl?.trim() ?? "")
 
   const allowAutoOpenQrModalRef = useRef(isProvisioning)
@@ -470,6 +494,35 @@ export function SessionCard({
     }
   }
 
+  async function handleDisconnect() {
+    setIsDisconnecting(true)
+    try {
+      // Fire-and-forget: the worker logs out, wipes auth, and idles. The card
+      // flips to 'disconnected' (reason 'manual') via the SSE stream, where the
+      // Reconnect button takes over.
+      await disconnectSession(sessionId)
+      setIsDisconnectDialogOpen(false)
+    } catch (error) {
+      console.error(`[session ${sessionId}] Disconnect failed:`, error)
+      toast.error("Couldn't disconnect. Please try again.")
+    } finally {
+      setIsDisconnecting(false)
+    }
+  }
+
+  async function handleDelete() {
+    setIsDeleting(true)
+    try {
+      // On success the parent removes this card from the list (unmounts us), so
+      // there's no "done" state to render. On failure, keep the dialog open and
+      // let the toast (raised upstream) explain.
+      await onDelete(sessionId)
+    } catch {
+      setIsDeleting(false)
+      setIsDeleteDialogOpen(false)
+    }
+  }
+
   const onboardingPhase = useOnboardingPhase(status, qr)
 
   return (
@@ -477,30 +530,105 @@ export function SessionCard({
       <CardHeader className="border-b">
         <div className="flex items-center justify-between gap-2">
           <CardTitle>Session {sessionId}</CardTitle>
-          {isLocalProvisioning && (
-            <SessionStatusBadge>
-              <Loader2 className="animate-spin" />
-              Provisioning...
-            </SessionStatusBadge>
-          )}
-          {!isLocalProvisioning && !isStreamConnected && (
-            <SessionStatusBadge>
-              <Loader2 className="animate-spin" />
-              Connecting...
-            </SessionStatusBadge>
-          )}
-          {isStreamConnected && status === "connected" && (
-            <Badge variant="success" className="gap-1">
-              <CheckCircle2 />
-              Connected
-            </Badge>
-          )}
-          {isStreamConnected && status === "disconnected" && (
-            <Badge variant="destructive" className="gap-1">
-              <XCircle />
-              Disconnected
-            </Badge>
-          )}
+          <div className="flex items-center gap-2">
+            {isLocalProvisioning && (
+              <SessionStatusBadge>
+                <Loader2 className="animate-spin" />
+                Provisioning...
+              </SessionStatusBadge>
+            )}
+            {!isLocalProvisioning && !isStreamConnected && (
+              <SessionStatusBadge>
+                <Loader2 className="animate-spin" />
+                Connecting...
+              </SessionStatusBadge>
+            )}
+            {isStreamConnected && status === "connected" && (
+              <Badge variant="success" className="gap-1">
+                <CheckCircle2 />
+                Connected
+              </Badge>
+            )}
+            {isStreamConnected && status === "disconnected" && (
+              <Badge variant="destructive" className="gap-1">
+                <XCircle />
+                Disconnected
+              </Badge>
+            )}
+
+            <AlertDialog
+              open={isDeleteDialogOpen}
+              onOpenChange={setIsDeleteDialogOpen}
+            >
+              <AlertDialogTrigger asChild>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-sm"
+                  className="text-muted-foreground hover:text-destructive"
+                  aria-label="Delete session"
+                >
+                  <Trash2 />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete this session?</AlertDialogTitle>
+                  <AlertDialogDescription asChild>
+                    <div className="space-y-3">
+                      <p>
+                        This permanently removes session{" "}
+                        <span className="font-mono text-foreground">
+                          {sessionId}
+                        </span>{" "}
+                        and unlinks its WhatsApp number. This can&apos;t be
+                        undone.
+                      </p>
+                      <p>
+                        Deleting a session won&apos;t change your subscription.
+                        To reduce your paid slots or cancel,{" "}
+                        <button
+                          type="button"
+                          onClick={onManageBilling}
+                          className="font-medium text-primary underline-offset-4 hover:underline"
+                        >
+                          manage your subscription
+                        </button>
+                        .
+                      </p>
+                    </div>
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel disabled={isDeleting}>
+                    Cancel
+                  </AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={(event) => {
+                      // Keep the dialog open while the request is in flight;
+                      // handleDelete closes it on failure, unmount on success.
+                      event.preventDefault()
+                      void handleDelete()
+                    }}
+                    disabled={isDeleting}
+                    className={cn(
+                      buttonVariants({ variant: "destructive" }),
+                      "gap-2"
+                    )}
+                  >
+                    {isDeleting ? (
+                      <>
+                        <Loader2 className="animate-spin" />
+                        Deleting...
+                      </>
+                    ) : (
+                      "Delete session"
+                    )}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
         </div>
         <CardDescription>
           {isLocalProvisioning
@@ -571,6 +699,50 @@ export function SessionCard({
                   Webhook URL isn&apos;t configured
                 </p>
               )}
+
+              <AlertDialog
+                open={isDisconnectDialogOpen}
+                onOpenChange={setIsDisconnectDialogOpen}
+              >
+                <AlertDialogTrigger asChild>
+                  <Button variant="outline" size="sm" className="mt-2">
+                    <Unplug />
+                    Disconnect
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Disconnect this session?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This unlinks the device from WhatsApp and stops message
+                      delivery. To use it again you&apos;ll need to reconnect and
+                      scan a new QR code. The session itself isn&apos;t deleted.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel disabled={isDisconnecting}>
+                      Cancel
+                    </AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={(event) => {
+                        event.preventDefault()
+                        void handleDisconnect()
+                      }}
+                      disabled={isDisconnecting}
+                      className="gap-2"
+                    >
+                      {isDisconnecting ? (
+                        <>
+                          <Loader2 className="animate-spin" />
+                          Disconnecting...
+                        </>
+                      ) : (
+                        "Disconnect"
+                      )}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
           )}
 

@@ -1,8 +1,11 @@
 import {
   BILLING_CHECKOUT_PATH,
+  BILLING_PORTAL_PATH,
   BILLING_SANDBOX_PATH,
   SESSIONS_PATH,
   SESSION_API_KEY_PATH,
+  SESSION_DELETE_PATH,
+  SESSION_DISCONNECT_PATH,
   SESSION_RECONNECT_PATH
 } from "@/constants/session"
 import { api } from "@/lib/api"
@@ -118,4 +121,37 @@ export async function reconnectSession(sessionId: string): Promise<{ ok: true }>
   return api
     .post(SESSION_RECONNECT_PATH.replace("{SESSION_ID}", sessionId))
     .json<{ ok: true }>()
+}
+
+/**
+ * POST /sessions/:id/disconnect — user-initiated logout: the worker unlinks the
+ * device, wipes auth, and idles in `disconnected` (reason `manual`). Returns
+ * 202; the new state arrives on the SSE stream, not this response.
+ */
+export async function disconnectSession(sessionId: string): Promise<{ ok: true }> {
+  return api
+    .post(SESSION_DISCONNECT_PATH.replace("{SESSION_ID}", sessionId))
+    .json<{ ok: true }>()
+}
+
+/**
+ * DELETE /sessions/:id — permanently tear down a session (worker pod, Zuplo
+ * consumer, DB row). Does not touch billing; reducing paid slots is a separate
+ * portal action. The caller updates local state on success.
+ */
+export async function deleteSession(
+  sessionId: string
+): Promise<{ success: boolean; message?: string }> {
+  return api
+    .delete(SESSION_DELETE_PATH.replace("{SESSION_ID}", sessionId))
+    .json<{ success: boolean; message?: string }>()
+}
+
+/**
+ * GET /billing/portal — fetch a fresh Freemius customer-portal magic link for
+ * the current user. The link is short-lived, so fetch it on demand (per click)
+ * rather than caching it.
+ */
+export async function fetchPortalLink(): Promise<{ url: string }> {
+  return api.get(BILLING_PORTAL_PATH).json<{ url: string }>()
 }
