@@ -23,6 +23,11 @@ const categories = [
           "No. You connect a WhatsApp number you already control by scanning a QR code, the same way you would link WhatsApp Web. There is no business verification or app review step.",
       },
       {
+        question: "Can I message people who haven't contacted me first?",
+        answer:
+          "No — Teiwah is reply-first. You can always reply to anyone who messages you, and you can post to groups, but you can't start a brand-new 1:1 conversation with someone who hasn't messaged you first. WhatsApp restricts cold outreach from non-official clients, so those sends are blocked to protect your number. If you need to message new numbers (marketing or notifications), that's what the official WhatsApp Business API is for.",
+      },
+      {
         question: "How do I connect a number?",
         answer:
           "Create a session in your dashboard, then scan the QR code with the WhatsApp app on your phone. The dashboard shows the connection status live. Each session represents one connected number.",

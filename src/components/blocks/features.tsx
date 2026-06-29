@@ -45,6 +45,8 @@ export const Features = () => {
           <p className="text-muted-foreground leading-snug">
             No business verification, no Meta app review, no SDKs to install.
             Connect a number you already own and start talking to it over HTTP.
+            Teiwah is reply-first — you reply to people who message you and post
+            to groups; cold outreach to brand-new numbers isn&apos;t supported.
           </p>
         </div>
 
