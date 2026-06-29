@@ -415,7 +415,8 @@ const DISCONNECT_REASON_LABELS: Record<SessionDisconnectReason, string> = {
   forbidden: "WhatsApp removed this device.",
   bad_session: "The session expired and must be re-linked.",
   restricted: "Your WhatsApp account is currently restricted.",
-  manual: "You disconnected this session."
+  manual: "You disconnected this session.",
+  number_in_use: "This phone number is already linked to another account."
 }
 
 export function SessionCard({

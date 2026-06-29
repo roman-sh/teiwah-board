@@ -81,6 +81,7 @@ export type SessionDisconnectReason =
   | "bad_session"
   | "restricted"
   | "manual"
+  | "number_in_use"
 
 export function useSessionStream(sessionId: string, initialProvisioning: boolean) {
   const { isLoaded, isSignedIn } = useAuth()
