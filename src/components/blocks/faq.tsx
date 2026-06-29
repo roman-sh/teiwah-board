@@ -48,6 +48,11 @@ const categories = [
           "Yes. You can cancel at any time from the billing portal. Your sessions keep working until the end of the current billing period.",
       },
       {
+        question: "Why is it so cheap?",
+        answer:
+          "We priced Teiwah at roughly what it costs us to run, not at what comparable tools tend to charge. The product is deliberately lean, so we can keep it affordable and still sustainable.",
+      },
+      {
         question: "Do you offer refunds?",
         answer:
           "See our Refund Policy for details on eligibility and how to request a refund.",
@@ -60,12 +65,17 @@ const categories = [
       {
         question: "How do I send a message?",
         answer:
-          "Send an authenticated POST request to /messages with your per-session API key and a JSON body containing the recipient and text. That's the whole flow.",
+          "Send an authenticated POST to /messages with your per-session API key and a small JSON body: a chatId plus either a text string or a media object. That's the whole flow.",
       },
       {
         question: "How do I receive messages?",
         answer:
           "Set a webhook URL on your session. Every incoming message is forwarded to that URL as a JSON POST, so your app or automation can react to it.",
+      },
+      {
+        question: "Is it good for AI and LLM workflows?",
+        answer:
+          "That's a core focus. Incoming voice notes are delivered as base64 so you can transcribe them with no extra download, outbound messages accept base64 so an agent can send media it just generated, and we infer fields like mime types for you — so there's less for a model to get right.",
       },
       {
         question: "Is Teiwah affiliated with WhatsApp or Meta?",

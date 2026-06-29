@@ -34,14 +34,15 @@ export function AboutHero() {
 
           <p className="text-muted-foreground mt-8 hidden max-w-lg space-y-6 text-lg text-balance md:block lg:mt-12">
             Wiring WhatsApp into an app or automation usually means business
-            verification, app reviews and heavy SDKs. Teiwah takes a different
-            path: connect a number you already own by scanning a QR code, then
-            send and receive messages with a single endpoint and a webhook.
+            verification, app reviews and heavy SDKs — and a bill to match.
+            Teiwah takes a different path: connect a number you already own by
+            scanning a QR code, then send and receive messages with a single
+            endpoint and a webhook.
             <br />
             <br />
-            It is built for developers and automation builders who just want a
-            number that talks to their code. We keep the surface area small, the
-            pricing simple, and your keys yours.
+            We built it to make WhatsApp automation genuinely affordable, with an
+            API shaped for developers and AI agents alike. Small surface area,
+            honest pricing, and your keys stay yours.
           </p>
         </div>
 

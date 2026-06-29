@@ -1,4 +1,5 @@
 import { Background } from "@/components/background";
+import { AiAutomation } from "@/components/blocks/ai-automation";
 import { FAQ } from "@/components/blocks/faq";
 import { Features } from "@/components/blocks/features";
 import { Hero } from "@/components/blocks/hero";
@@ -12,6 +13,7 @@ export default function Home() {
         <Hero />
         <Features />
         <ResourceAllocation />
+        <AiAutomation />
       </Background>
       <Background variant="bottom">
         <Pricing />

@@ -24,8 +24,9 @@ export const Pricing = ({ className }: { className?: string }) => {
             Simple, per-session pricing
           </h2>
           <p className="text-muted-foreground mx-auto max-w-xl leading-snug text-balance">
-            One price per connected number. Need more numbers? Just increase the
-            quantity at checkout. No annual contracts, no bundles.
+            One price per connected number — set at what it actually costs us to
+            run, not what the market will bear. Need more numbers? Just increase
+            the quantity at checkout. No annual contracts, no bundles.
           </p>
         </div>
 

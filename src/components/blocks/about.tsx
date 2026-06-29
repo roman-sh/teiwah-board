@@ -20,8 +20,8 @@ const About = () => {
         <TextSection
           title="Who we are"
           paragraphs={[
-            "Teiwah is an independent, bootstrapped product built and run from Israel. We started it to scratch our own itch: getting a WhatsApp number to talk to our code shouldn't require weeks of setup.",
-            "We keep the team and the product lean on purpose. Fewer features, done well, beats a sprawling platform you have to fight with. Most of our time goes into making the connection reliable and the API boring to use.",
+            "Teiwah is an independent, bootstrapped product built and run from Israel. We started it to scratch our own itch: getting a WhatsApp number to talk to your code shouldn't take weeks of setup — or cost a small fortune every month.",
+            "We keep the team and the product lean on purpose. Fewer features, done well, beats a sprawling platform you have to fight with. That focus is also what lets us keep the price low: we charge roughly what it costs to run, not what the market will bear.",
           ]}
         />
       </div>
@@ -30,8 +30,8 @@ const About = () => {
       <div className="flex flex-col gap-8 lg:gap-16 xl:gap-20">
         <TextSection
           paragraphs={[
-            "Our goal is simple: let developers and automation builders send and receive WhatsApp messages over HTTP without the usual ceremony. Connect a number, set a webhook, send a request — that's the whole product.",
-            "We bill one transparent price per connected number and never store your full API keys in plain text. If something breaks or you have a question, you reach a real person, not a ticket maze.",
+            "Our goal is simple: low-cost, low-friction access to WhatsApp for developers and automation builders. Connect a number, set a webhook, send a request — that's the whole product.",
+            "We also shaped the API for the way AI agents work today: voice notes arrive ready to transcribe, generated media can be sent inline, and we infer what we can so you send only the essentials. One transparent price per number, and we never store your full API keys in plain text.",
           ]}
         />
         <ImageSection

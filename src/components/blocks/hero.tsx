@@ -32,7 +32,7 @@ const codeSnippet = `curl https://api.teiwah.cloud/messages \\
   -H "Authorization: Bearer <your-session-key>" \\
   -H "Content-Type: application/json" \\
   -d '{
-    "to": "15551234567@s.whatsapp.net",
+    "chatId": "15551234567",
     "text": "Hello from Teiwah 👋"
   }'`;
 
@@ -43,12 +43,13 @@ export const Hero = () => {
         {/* Left side - Main content */}
         <div className="flex-1">
           <h1 className="text-foreground max-w-160 text-3xl tracking-tight md:text-4xl lg:text-5xl">
-            A simple WhatsApp messaging API
+            WhatsApp automation, made simple and affordable
           </h1>
 
           <p className="text-muted-foreground mt-5 max-w-xl text-lg md:text-2xl">
-            Connect a WhatsApp number, then send and receive messages over plain
-            HTTP. Built for developers, n8n, Make and no-code automations.
+            Connect a WhatsApp number and send and receive messages over plain
+            HTTP. Teiwah exists for one reason: low-cost, low-friction access to
+            WhatsApp — for developers, no-code automations, and AI agents alike.
           </p>
 
           <div className="mt-8 flex flex-wrap items-center gap-4 lg:flex-nowrap">
