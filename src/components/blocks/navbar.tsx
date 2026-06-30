@@ -135,13 +135,17 @@ export const Navbar = () => {
           <div className="max-lg:hidden flex items-center gap-4">
             {!isSignedIn ? (
               <SignInButton mode="modal">
-                <Button variant="outline">
-                  <span className="relative z-10">Register</span>
+                <Button variant="outline" id="nav-sign-in">
+                  <span className="relative z-10">Sign in</span>
                 </Button>
               </SignInButton>
             ) : (
               <>
-                <Link href="/dashboard" className="text-sm font-medium hover:opacity-75 transition-opacity">
+                <Link
+                  href="/dashboard"
+                  id="nav-dashboard"
+                  className="text-sm font-medium hover:opacity-75 transition-opacity"
+                >
                   Dashboard
                 </Link>
                 <UserButton />
@@ -183,14 +187,26 @@ export const Navbar = () => {
         )}
       >
         <nav className="divide-border flex flex-1 flex-col divide-y">
-          {isSignedIn && (
+          {isSignedIn ? (
             <Link
               href="/dashboard"
+              id="nav-dashboard-mobile"
               className="text-primary hover:text-primary/80 py-4 text-base font-medium transition-colors first:pt-0"
               onClick={() => setIsMenuOpen(false)}
             >
               Dashboard
             </Link>
+          ) : (
+            <SignInButton mode="modal">
+              <button
+                type="button"
+                id="nav-sign-in-mobile"
+                className="text-primary hover:text-primary/80 py-4 text-base font-medium transition-colors first:pt-0 text-left w-full"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Sign in
+              </button>
+            </SignInButton>
           )}
           {items.map((link) =>
             link.dropdownItems ? (
