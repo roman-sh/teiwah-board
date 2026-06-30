@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -19,39 +19,44 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
+import { marketingHomePath } from "@/lib/marketing-home";
 import { cn } from "@/lib/utils";
 
-const ITEMS = [
-  {
-    label: "Product",
-    href: "/#how-it-works",
-    dropdownItems: [
-      {
-        title: "How it works",
-        href: "/#how-it-works",
-        description:
-          "Connect a WhatsApp number, get an API key and webhook, start sending in minutes.",
-      },
-      {
-        title: "Features",
-        href: "/#features",
-        description:
-          "Inbound webhooks, outbound HTTP API, per-session keys and a live dashboard.",
-      },
-    ],
-  },
-  { label: "Docs", href: "https://docs.teiwah.cloud", external: true },
-  { label: "About", href: "/about" },
-  { label: "Pricing", href: "/pricing" },
-  { label: "FAQ", href: "/faq" },
-  { label: "Contact", href: "/contact" },
-];
+function getNavItems(marketingHome: "/" | "/home") {
+  return [
+    {
+      label: "Product",
+      href: `${marketingHome}#how-it-works`,
+      dropdownItems: [
+        {
+          title: "How it works",
+          href: `${marketingHome}#how-it-works`,
+          description:
+            "Connect a WhatsApp number, get an API key and webhook, start sending in minutes.",
+        },
+        {
+          title: "Features",
+          href: `${marketingHome}#features`,
+          description:
+            "Inbound webhooks, outbound HTTP API, per-session keys and a live dashboard.",
+        },
+      ],
+    },
+    { label: "Docs", href: "https://docs.teiwah.cloud", external: true },
+    { label: "About", href: "/about" },
+    { label: "Pricing", href: "/pricing" },
+    { label: "FAQ", href: "/faq" },
+    { label: "Contact", href: "/contact" },
+  ];
+}
 
 export const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const pathname = usePathname();
   const { isSignedIn } = useAuth();
+  const marketingHome = marketingHomePath(isSignedIn);
+  const items = useMemo(() => getNavItems(marketingHome), [marketingHome]);
 
   return (
     <section
@@ -61,7 +66,7 @@ export const Navbar = () => {
       )}
     >
       <div className="flex items-center justify-between px-6 py-3">
-        <Link href="/" className="flex shrink-0 items-center gap-2">
+        <Link href={marketingHome} className="flex shrink-0 items-center gap-2">
           <Image
             src="/logo.svg"
             alt="Teiwah"
@@ -74,7 +79,7 @@ export const Navbar = () => {
         {/* Desktop Navigation */}
         <NavigationMenu className="max-lg:hidden">
           <NavigationMenuList>
-            {ITEMS.map((link) =>
+            {items.map((link) =>
               link.dropdownItems ? (
                 <NavigationMenuItem key={link.label} className="">
                   <NavigationMenuTrigger className="data-[state=open]:bg-accent/50 bg-transparent! px-1.5">
@@ -187,7 +192,7 @@ export const Navbar = () => {
               Dashboard
             </Link>
           )}
-          {ITEMS.map((link) =>
+          {items.map((link) =>
             link.dropdownItems ? (
               <div key={link.label} className="py-4 first:pt-0 last:pb-0">
                 <button
