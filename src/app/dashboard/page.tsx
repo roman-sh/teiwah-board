@@ -1,11 +1,10 @@
 "use client";
 
-import { PlusCircle, Sparkles } from "lucide-react"
+import { PlusCircle } from "lucide-react"
 
 import { SessionCard } from "@/components/blocks/session-card"
 import { SessionGridGhost } from "@/components/blocks/session-grid-ghost"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+import { TrialCard } from "@/components/blocks/trial-card"
 import { Card, CardContent, CardDescription, CardTitle } from "@/components/ui/card"
 import { useSessions } from "@/hooks/use-sessions"
 import { cn } from "@/lib/utils"
@@ -63,19 +62,9 @@ export default function DashboardPage() {
             </p>
           )}
         </div>
-
-        {!isLoading && isTrial && (
-          <div className="flex items-center gap-3">
-            <Badge variant="secondary" className="gap-1">
-              <Sparkles className="size-3.5" />
-              Trial{trialEndsLabel ? ` · ${trialEndsLabel}` : ""}
-            </Badge>
-            <Button onClick={() => void subscribe()}>Subscribe</Button>
-          </div>
-        )}
       </div>
 
-      <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid items-stretch gap-8 md:grid-cols-2 lg:grid-cols-3">
         {isLoading ? (
           <SessionGridGhost />
         ) : (
@@ -91,6 +80,14 @@ export default function DashboardPage() {
               onManageBilling={() => void openBillingPortal()}
             />
           ))
+        )}
+
+        {!isLoading && isTrial && (
+          <TrialCard
+            trialEndsLabel={trialEndsLabel}
+            onSubscribe={() => void subscribe()}
+            onManageBilling={() => void openBillingPortal()}
+          />
         )}
 
         {showAddCard && (
