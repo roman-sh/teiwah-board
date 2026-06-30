@@ -91,22 +91,25 @@ export default function DashboardPage() {
         )}
 
         {showAddCard && (
-          <button
-            type="button"
-            onClick={() => void createSession()}
-            disabled={isCreatingSession}
-            className={cn(
-              "text-left h-full min-h-[380px] rounded-xl transition-all",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-              "disabled:cursor-not-allowed disabled:opacity-60"
-            )}
-          >
-            <Card
+          <div className="flex h-full flex-col gap-2">
+            {/* Spacer matches SessionCard chip row (h-7) so card bodies align */}
+            <div className="h-7 shrink-0" aria-hidden />
+            <button
+              type="button"
+              onClick={() => void createSession()}
+              disabled={isCreatingSession}
               className={cn(
-                "h-full min-h-[380px] border-2 border-dashed shadow-sm",
-                "bg-muted/10 text-muted-foreground hover:bg-muted/30 hover:text-foreground hover:border-primary/50",
-                "flex flex-col items-center justify-center space-y-4 group"
+                "text-left flex-1 rounded-xl transition-all",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                "disabled:cursor-not-allowed disabled:opacity-60"
               )}
+            >
+              <Card
+                className={cn(
+                  "h-full min-h-[380px] border-2 border-dashed shadow-sm",
+                  "bg-muted/10 text-muted-foreground hover:bg-muted/30 hover:text-foreground hover:border-primary/50",
+                  "flex flex-col items-center justify-center space-y-4 group"
+                )}
             >
               <CardContent className="flex flex-col items-center justify-center space-y-4 pt-0">
                 <div className="size-16 rounded-full bg-background border shadow-sm flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -127,6 +130,7 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
           </button>
+          </div>
         )}
       </div>
     </div>

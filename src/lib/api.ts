@@ -44,6 +44,12 @@ export const api = ky.create({
 })
 
 /**
+ * ky defaults to 10s. Provision/delete hit Zuplo + several remote k8s API calls
+ * sequentially — easily exceeds that in local dev against the Hetzner cluster.
+ */
+export const CONTROL_SLOW_REQUEST_TIMEOUT_MS = 60_000
+
+/**
  * Drop-in fetch() for @microsoft/fetch-event-source.
  *
  * Why not pass headers once via authHeaders()?

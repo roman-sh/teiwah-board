@@ -8,7 +8,7 @@ import {
   SESSION_DISCONNECT_PATH,
   SESSION_RECONNECT_PATH
 } from "@/constants/session"
-import { api } from "@/lib/api"
+import { api, CONTROL_SLOW_REQUEST_TIMEOUT_MS } from "@/lib/api"
 import type { CheckoutSettings, SandboxParams } from "@/lib/freemius-checkout"
 
 // -----------------------------------------------------------------------------
@@ -103,7 +103,9 @@ export async function fetchSandboxParams(): Promise<SandboxParams | null> {
  * The Control App will create a DB record and tell Kubernetes to spin up a pod.
  */
 export async function provisionSession(): Promise<CreateSessionResponse> {
-  return api.post(SESSIONS_PATH).json<CreateSessionResponse>()
+  return api
+    .post(SESSIONS_PATH, { timeout: CONTROL_SLOW_REQUEST_TIMEOUT_MS })
+    .json<CreateSessionResponse>()
 }
 
 /** GET /sessions/:id/api-key — full key from Zuplo (not stored in DB). */
@@ -143,7 +145,9 @@ export async function deleteSession(
   sessionId: string
 ): Promise<{ success: boolean; message?: string }> {
   return api
-    .delete(SESSION_DELETE_PATH.replace("{SESSION_ID}", sessionId))
+    .delete(SESSION_DELETE_PATH.replace("{SESSION_ID}", sessionId), {
+      timeout: CONTROL_SLOW_REQUEST_TIMEOUT_MS
+    })
     .json<{ success: boolean; message?: string }>()
 }
 

@@ -32,12 +32,12 @@ export async function parseCreateSessionError(
   }
 
   const status = error.response.status
-  let body: GateErrorBody = {}
-  try {
-    body = (await error.response.json()) as GateErrorBody
-  } catch {
-    // Non-JSON error body — fall through to status-only handling.
-  }
+  // ky consumes the body into `error.data` when the caller chained `.json()` —
+  // `error.response.json()` will fail on a second read.
+  const body: GateErrorBody =
+    error.data && typeof error.data === 'object'
+      ? (error.data as GateErrorBody)
+      : {}
 
   switch (status) {
     case 402:
