@@ -1,30 +1,38 @@
 import Link from "next/link";
 
-import { ArrowRight, KeyRound, QrCode, Send, Webhook } from "lucide-react";
+import {
+  ArrowRight,
+  BadgeCheck,
+  Clock3,
+  MessageCircleReply,
+  MessagesSquare,
+} from "lucide-react";
 
 import { DashedLine } from "@/components/dashed-line";
 import { Button } from "@/components/ui/button";
 
 const features = [
   {
-    title: "Connect by QR",
-    description: "Scan a QR code once to link a WhatsApp number to your account.",
-    icon: QrCode,
+    title: "Live in minutes",
+    description: "Scan a QR code and your WhatsApp number is ready.",
+    icon: Clock3,
   },
   {
-    title: "Per-session API key",
-    description: "Every connected number gets its own key for sending messages.",
-    icon: KeyRound,
+    title: "Skip Meta approval",
+    description: "No business verification, Meta app, or app review.",
+    icon: BadgeCheck,
   },
   {
-    title: "Inbound webhooks",
-    description: "Incoming messages are delivered to your URL as a simple JSON POST.",
-    icon: Webhook,
+    title: "A live view of every conversation",
+    description:
+      "Use a dedicated phone and its WhatsApp app to monitor incoming messages and your agent’s replies—no third-party inbox required.",
+    icon: MessagesSquare,
   },
   {
-    title: "Send over HTTP",
-    description: "One POST request sends a WhatsApp message. No SDK required.",
-    icon: Send,
+    title: "Built for conversations",
+    description: "Reply to incoming messages and post to groups.",
+    warning: "Cold outreach to new numbers isn’t supported.",
+    icon: MessageCircleReply,
   },
 ];
 
@@ -43,7 +51,7 @@ export const Hero = () => {
         {/* Left side - Main content */}
         <div className="flex-1">
           <h1 className="text-foreground max-w-160 text-3xl tracking-tight md:text-4xl lg:text-5xl">
-            WhatsApp automation, made simple and affordable
+            WhatsApp AI automation for free (almost).
           </h1>
 
           <p className="text-muted-foreground mt-5 max-w-xl text-lg md:text-2xl">
@@ -90,6 +98,12 @@ export const Hero = () => {
                   </h2>
                   <p className="text-muted-foreground max-w-76 text-sm">
                     {feature.description}
+                    {feature.warning && (
+                      <span className="text-amber-600 dark:text-amber-400">
+                        {" "}
+                        {feature.warning}
+                      </span>
+                    )}
                   </p>
                 </div>
               </div>
