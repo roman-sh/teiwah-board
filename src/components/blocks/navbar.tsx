@@ -40,6 +40,12 @@ function getNavItems(marketingHome: "/" | "/home") {
           description:
             "Inbound webhooks, outbound HTTP API, per-session keys and a live dashboard.",
         },
+        {
+          title: "TypeScript SDK",
+          href: `${marketingHome}#typescript-sdk`,
+          description:
+            "Typed server-side client for messages, webhooks, chat actions and media.",
+        },
       ],
     },
     { label: "Docs", href: "https://docs.teiwah.cloud", external: true },

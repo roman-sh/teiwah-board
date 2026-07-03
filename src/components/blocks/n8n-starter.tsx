@@ -1,27 +1,26 @@
-"use client"
+"use client";
 
-import { useState } from "react"
+import { useState } from "react";
 
-import Image from "next/image"
-import Link from "next/link"
+import Image from "next/image";
+import Link from "next/link";
 
-import { Check, Copy, Download } from "lucide-react"
+import { Check, Copy, Download } from "lucide-react";
 
-import { DashedLine } from "../dashed-line"
+import { DashedLine } from "../dashed-line";
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 
-const WORKFLOW_URL =
-  "https://docs.teiwah.cloud/workflows/teiwah-ai-agent.json"
+const WORKFLOW_URL = "https://docs.teiwah.cloud/workflows/teiwah-ai-agent.json";
 
 export const N8nStarter = () => {
-  const [copied, setCopied] = useState(false)
+  const [copied, setCopied] = useState(false);
 
   async function copyWorkflowUrl() {
-    await navigator.clipboard.writeText(WORKFLOW_URL)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 1500)
+    await navigator.clipboard.writeText(WORKFLOW_URL);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
   }
 
   return (
@@ -34,15 +33,10 @@ export const N8nStarter = () => {
           </span>
         </div>
 
-        <Card className="mt-10 overflow-hidden rounded-3xl lg:mt-20">
+        <Card className="mt-8 overflow-hidden rounded-3xl lg:mt-16">
           <CardContent className="grid gap-0 p-0 lg:grid-cols-2">
             <div className="p-6 md:p-10">
-              <Image
-                src="/logos/n8n.svg"
-                alt="n8n"
-                width={48}
-                height={24}
-              />
+              <Image src="/logos/n8n.svg" alt="n8n" width={48} height={24} />
               <h2 className="mt-6 text-2xl tracking-tight md:text-4xl">
                 Start with a working n8n AI agent
               </h2>
@@ -53,11 +47,11 @@ export const N8nStarter = () => {
               </p>
             </div>
 
-            <div className="bg-foreground/95 dark:bg-muted flex flex-col justify-center border-t border-white/10 p-6 lg:border-t-0 lg:border-l md:p-10">
-              <p className="font-mono text-xs font-medium tracking-wide text-white/50 dark:text-muted-foreground">
+            <div className="bg-foreground/95 dark:bg-muted flex flex-col justify-center border-t border-white/10 p-6 md:p-10 lg:border-t-0 lg:border-l">
+              <p className="dark:text-muted-foreground font-mono text-xs font-medium tracking-wide text-white/50">
                 N8N · IMPORT FROM URL
               </p>
-              <code className="mt-4 block break-all font-mono text-sm leading-relaxed text-green-300 dark:text-foreground">
+              <code className="dark:text-foreground mt-4 block font-mono text-sm leading-relaxed break-all text-green-300">
                 {WORKFLOW_URL}
               </code>
               <div className="mt-6 flex flex-wrap gap-3">
@@ -80,5 +74,5 @@ export const N8nStarter = () => {
         </Card>
       </div>
     </section>
-  )
-}
+  );
+};

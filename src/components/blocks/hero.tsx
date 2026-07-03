@@ -8,6 +8,7 @@ import {
   MessagesSquare,
 } from "lucide-react";
 
+import { TypeScriptSdk } from "@/components/blocks/typescript-sdk";
 import { DashedLine } from "@/components/dashed-line";
 import { Button } from "@/components/ui/button";
 
@@ -46,7 +47,7 @@ const codeSnippet = `curl https://api.teiwah.cloud/messages \\
 
 export const Hero = () => {
   return (
-    <section className="py-28 lg:py-32 lg:pt-44">
+    <section className="pt-28 pb-20 lg:pt-44 lg:pb-24">
       <div className="container flex flex-col justify-between gap-8 md:gap-14 lg:flex-row lg:gap-20">
         {/* Left side - Main content */}
         <div className="flex-1">
@@ -125,6 +126,7 @@ export const Hero = () => {
           <pre className="overflow-x-auto p-5 font-mono text-xs leading-relaxed text-green-300 sm:text-sm md:p-8">
             <code>{codeSnippet}</code>
           </pre>
+          <TypeScriptSdk />
         </div>
       </div>
     </section>
