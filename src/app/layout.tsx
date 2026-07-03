@@ -68,29 +68,22 @@ if (!process.env.NEXT_PUBLIC_APP_URL) {
   throw new Error("NEXT_PUBLIC_APP_URL environment variable is not defined");
 }
 
+const siteUrl = new URL(process.env.NEXT_PUBLIC_APP_URL);
+
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL),
+  metadataBase: siteUrl,
   title: {
     default: "Teiwah — WhatsApp Messaging API for Developers & Automations",
     template: "%s | Teiwah",
   },
   description:
     "Teiwah is a simple WhatsApp messaging API. Connect a number by scanning a QR code, then send and receive messages over HTTP with webhooks. Built for developers, n8n, Make and no-code automations.",
-  keywords: [
-    "WhatsApp API",
-    "WhatsApp messaging API",
-    "send WhatsApp messages",
-    "WhatsApp webhook",
-    "WhatsApp automation",
-    "n8n WhatsApp",
-    "Make WhatsApp",
-    "chatbot API",
-    "messaging API",
-    "developer API",
-  ],
   authors: [{ name: "Teiwah" }],
   creator: "Teiwah",
   publisher: "Teiwah",
+  alternates: {
+    canonical: "/",
+  },
   robots: {
     index: true,
     follow: true,
@@ -108,6 +101,8 @@ export const metadata: Metadata = {
     description:
       "Connect a WhatsApp number by scanning a QR code, then send and receive messages over HTTP with webhooks. Built for developers and automations.",
     siteName: "Teiwah",
+    url: "/",
+    type: "website",
     images: [
       {
         url: "/og-image.jpg",
@@ -126,6 +121,38 @@ export const metadata: Metadata = {
   },
 };
 
+const structuredData = [
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "@id": `${siteUrl.origin}/#organization`,
+    name: "Teiwah",
+    url: siteUrl.origin,
+    logo: `${siteUrl.origin}/favicon/favicon.png`,
+    email: "support@teiwah.cloud",
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "@id": `${siteUrl.origin}/#software-application`,
+    name: "Teiwah",
+    url: siteUrl.origin,
+    description:
+      "A simple WhatsApp messaging API for sending and receiving messages over HTTP with webhooks.",
+    applicationCategory: "DeveloperApplication",
+    operatingSystem: "Web",
+    provider: {
+      "@id": `${siteUrl.origin}/#organization`,
+    },
+    offers: {
+      "@type": "Offer",
+      price: "2.95",
+      priceCurrency: "USD",
+      description: "Per connected WhatsApp session per month",
+    },
+  },
+];
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -135,6 +162,12 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <ClerkProvider afterSignOutUrl="/">
         <body className={`${dmSans.variable} ${inter.variable} antialiased`}>
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify(structuredData).replace(/</g, "\\u003c"),
+            }}
+          />
           <ThemeProvider
             attribute="class"
             defaultTheme="dark"

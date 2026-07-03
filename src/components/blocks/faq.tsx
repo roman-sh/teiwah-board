@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/accordion";
 import { cn } from "@/lib/utils";
 
-const categories = [
+export const faqCategories = [
   {
     title: "Getting started",
     questions: [
@@ -124,7 +124,7 @@ export const FAQ = ({
           </div>
 
           <div className="grid gap-6 text-start">
-            {categories.map((category, categoryIndex) => (
+            {faqCategories.map((category, categoryIndex) => (
               <div key={category.title} className="">
                 <h3 className="text-muted-foreground border-b py-4">
                   {category.title}
